@@ -13,7 +13,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Boy",
+    "_name": "Role",
     "_objFlags": 0,
     "_parent": null,
     "_children": [
@@ -25,19 +25,10 @@
     "_components": [
       {
         "__id__": 4
-      },
-      {
-        "__id__": 5
-      },
-      {
-        "__id__": 6
-      },
-      {
-        "__id__": 7
       }
     ],
     "_prefab": {
-      "__id__": 8
+      "__id__": 5
     },
     "_opacity": 255,
     "_color": {
@@ -128,8 +119,8 @@
         0,
         0,
         1,
-        0.5,
-        0.5,
+        1,
+        1,
         1
       ]
     },
@@ -152,67 +143,10 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "b3bf4e23-01a2-471f-8047-a8558f89146c"
+      "__uuid__": "439abe0d-531c-4676-9cc7-e7729c235ac6"
     },
-    "fileId": "03RF/YHR5KM6TJSuINBwR1",
+    "fileId": "16b72oTEBN97ehE8XBXsvi",
     "sync": false
-  },
-  {
-    "__type__": "4870b1zX5BPfI2JEIA78R3b",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 1
-    },
-    "_enabled": true,
-    "_id": ""
-  },
-  {
-    "__type__": "cc.RigidBody",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 1
-    },
-    "_enabled": true,
-    "_type": 2,
-    "_allowSleep": true,
-    "_gravityScale": 0,
-    "_linearDamping": 0,
-    "_angularDamping": 0,
-    "_linearVelocity": {
-      "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
-    },
-    "_angularVelocity": 0,
-    "_fixedRotation": false,
-    "enabledContactListener": true,
-    "bullet": false,
-    "awakeOnLoad": true,
-    "_id": ""
-  },
-  {
-    "__type__": "cc.PhysicsCircleCollider",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 1
-    },
-    "_enabled": true,
-    "tag": 0,
-    "_density": 1,
-    "_sensor": false,
-    "_friction": 0.2,
-    "_restitution": 0,
-    "body": null,
-    "_offset": {
-      "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
-    },
-    "_radius": 10,
-    "_id": ""
   },
   {
     "__type__": "cc.CircleCollider",
@@ -228,7 +162,7 @@
       "x": 0,
       "y": 0
     },
-    "_radius": 10,
+    "_radius": 50,
     "_id": ""
   },
   {
@@ -237,9 +171,9 @@
       "__id__": 1
     },
     "asset": {
-      "__uuid__": "b3bf4e23-01a2-471f-8047-a8558f89146c"
+      "__uuid__": "439abe0d-531c-4676-9cc7-e7729c235ac6"
     },
-    "fileId": "08okFKNhFBUbuNZjwcrhEe",
+    "fileId": "aakiCF0FhJg47WSkLBCPJa",
     "sync": false
   }
 ]

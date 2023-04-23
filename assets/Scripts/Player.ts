@@ -5,14 +5,12 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export default class Player extends RoleBase {
     public static Instance: Player;
-
     private inputDir: cc.Vec2 = cc.Vec2.ZERO;
     private moveDir: cc.Vec2;
     public speed: number = 300;
 
     onLoad() {
         super.onLoad();
-        this.Ai = false;
         Player.Instance = this;
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.OnKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.OnKeyUp, this);
@@ -68,6 +66,7 @@ export default class Player extends RoleBase {
     }
 
     update(dt) {
+        super.update(dt);
         this.Move(dt);
         this.UpdateRotation();
     }

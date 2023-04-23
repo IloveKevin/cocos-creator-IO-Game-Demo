@@ -1,15 +1,13 @@
 import RoleBase from "./Base/RoleBase";
 import Boy from "./Boy";
-import Player from "./Player";
 
-const { ccclass, property } = cc._decorator;
-
-@ccclass
 export default class BoyManager {
     private role: RoleBase;
-    private firstRBoyCount: number = 5;
-    private roundR = 50;
+    private firstRBoyCount: number = 9;
+    private firshRoundR = 40;
+    private roundR = 20;
     private boys: Boy[] = [];
+    private level: number = 1;
     constructor(role: RoleBase) {
         this.role = role;
     }
@@ -23,7 +21,7 @@ export default class BoyManager {
     private HasBoy(boy: Boy): number {
         let j = -1;
         for (let i = 0; i < this.boys.length; i++) {
-            if (JSON.stringify(this.boys[i]) == JSON.stringify(boy)) j = i;
+            if (this.boys[i] == boy) j = i;
         }
         return j;
     }
@@ -42,16 +40,19 @@ export default class BoyManager {
     }
 
     private SortBoy() {
-        for (let i = 0; i < this.boys.length; i++) {
-            this.boys[i].ChangeTarget(this.role, this.GetPosById(i));
+        for (let i = 1; i <= this.boys.length; i++) {
+            this.boys[i - 1].ChangeTarget(this.role, this.GetPosById(i));
         }
+        this.role.SetLevel(this.level);
     }
     private GetPosById(id: number) {
+        this.level = 1;
         id = Math.floor(id);
-        let r = this.roundR;
+        let r = this.firshRoundR;
         let l = 2 * r * Math.PI / this.firstRBoyCount;
         let angle = l * 180 / (Math.PI * r);
         for (; angle * id > 360;) {
+            this.level++;
             id = id - Math.floor(360 / angle);
             r += this.roundR;
             angle = l * 180 / (Math.PI * r);

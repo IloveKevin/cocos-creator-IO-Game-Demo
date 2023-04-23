@@ -1,4 +1,5 @@
 import RoleBase from "./Base/RoleBase";
+import EatingUtil from "./EatingUtil";
 
 const { ccclass, property } = cc._decorator;
 
@@ -13,6 +14,11 @@ export default class Boy extends cc.Component {
     private accelerationDir: cc.Vec2 = cc.Vec2.ZERO;
     private acceleration: number = 1500;
     public targetPos: cc.Vec2 = null;
+    private rb: cc.RigidBody;
+
+    protected onLoad(): void {
+        this.rb = this.node.getComponent(cc.RigidBody);
+    }
 
     public ChangeTarget(role: RoleBase, targetPos: cc.Vec2) {
         this.role = role;
@@ -23,8 +29,8 @@ export default class Boy extends cc.Component {
         return this.role;
     }
 
-    private Move(dt: number) {
-        this.node.setPosition(this.node.getPosition().add(this.moveSpeed.mul(dt)));
+    private Move() {
+        this.rb.linearVelocity = this.moveSpeed;
     }
 
     private UpdateAccelerationDir() {
@@ -42,13 +48,13 @@ export default class Boy extends cc.Component {
 
     protected update(dt: number): void {
         if (null == this.role) {
-            this.AiMove(dt);
+            // this.AiMove(dt);
             return;
         }
         this.UpdateAccelerationDir();
         this.UpdateMoveSpeed(dt);
         this.UpdateRotation(dt);
-        this.Move(dt);
+        this.Move();
     }
 
     private AiMove(dt: number) {
@@ -62,9 +68,13 @@ export default class Boy extends cc.Component {
         if (this.moveSpeed.mag() > this.AiMaxSpeed) {
             this.moveSpeed.normalizeSelf().mulSelf(this.AiMaxSpeed);
         }
-        this.Move(dt);
+        this.Move();
         this.moveDir = this.moveSpeed.normalize();
         this.UpdateRotation(dt);
+    }
+
+    onPreSolve(contact: cc.PhysicsContact, selfCollider: cc.PhysicsCollider, otherCollider: cc.PhysicsCollider) {
+        if (1 != otherCollider.tag) contact.disabled = true;
     }
 
     private UpdateRotation(dt: number) {
@@ -72,10 +82,6 @@ export default class Boy extends cc.Component {
         if (this.moveDir.x < 0) {
             rotation = -rotation;
         }
-        this.node.angle = this.Lerp(this.node.angle, -rotation, dt);
-    }
-
-    private Lerp(a: number, b: number, t: number) {
-        return a + (b - a) * (1 - t);
+        this.node.angle = EatingUtil.Lerp(this.node.angle, -rotation, dt);
     }
 }
