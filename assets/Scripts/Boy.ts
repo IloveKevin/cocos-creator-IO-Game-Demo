@@ -1,4 +1,5 @@
 import RoleBase from "./Base/RoleBase";
+import EatingGame from "./EatingGame";
 import EatingUtil from "./EatingUtil";
 
 const { ccclass, property } = cc._decorator;
@@ -8,8 +9,8 @@ export default class Boy extends cc.Component {
     private role: RoleBase;
     //移动方向
     private moveDir: cc.Vec2 = cc.v2(1, 0);
+    private aiMovePos: cc.Vec2 = cc.Vec2.ZERO;
     private maxSpeed: number = 400;
-    private AiMaxSpeed: number = 20;
     private moveSpeed: cc.Vec2 = cc.Vec2.ZERO;
     private accelerationDir: cc.Vec2 = cc.Vec2.ZERO;
     private acceleration: number = 1500;
@@ -48,7 +49,7 @@ export default class Boy extends cc.Component {
 
     protected update(dt: number): void {
         if (null == this.role) {
-            // this.AiMove(dt);
+            this.AiMove(dt);
             return;
         }
         this.UpdateAccelerationDir();
@@ -57,19 +58,18 @@ export default class Boy extends cc.Component {
         this.Move();
     }
 
-    private AiMove(dt: number) {
-        if (null == this.targetPos || 10 >= (this.node.getPosition().sub(this.targetPos)).mag()) {
-            let targetPos = cc.v2(Math.random() - 1, Math.random() - 1).normalize().mul(Math.random() * 100);
-            this.targetPos = this.node.parent.convertToWorldSpaceAR(this.node.getPosition().add(targetPos));
+    private AiMove(dt) {
+        if (this.aiMovePos.equals(cc.Vec2.ZERO)) {
+            this.aiMovePos = cc.v2(Math.random() - 0.5, Math.random() - 0.5).normalize().mul(Math.random() * 50 + 50);
+            while (!EatingGame.Instance.InWall(this.aiMovePos)) {
+                this.aiMovePos = cc.v2(Math.random() - 0.5, Math.random() - 0.5).normalize().mul(Math.random() * 50 + 50);
+            }
         }
-        let targetDir = this.node.parent.convertToNodeSpaceAR(this.targetPos).sub(this.node.getPosition());
-        let accelerationDir = targetDir.normalize().mul(this.acceleration);
-        this.moveSpeed = this.moveSpeed.add(accelerationDir.mul(dt));
-        if (this.moveSpeed.mag() > this.AiMaxSpeed) {
-            this.moveSpeed.normalizeSelf().mulSelf(this.AiMaxSpeed);
-        }
-        this.Move();
-        this.moveDir = this.moveSpeed.normalize();
+        let pos = this.node.parent.convertToNodeSpaceAR(this.aiMovePos);
+        let dir = pos.sub(this.node.getPosition()).normalize();
+        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 10)));
+        if (this.node.getPosition().sub(pos).mag() <= 20) this.aiMovePos = cc.Vec2.ZERO;
+        this.moveDir = dir;
         this.UpdateRotation(dt);
     }
 

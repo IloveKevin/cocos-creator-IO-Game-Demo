@@ -66,13 +66,13 @@ export default class RoleBase extends cc.Component {
     }
 
     private AiMove(dt) {
-        if (!this.aiMovePos.equals(cc.Vec2.ZERO)) {
+        if (this.aiMovePos.equals(cc.Vec2.ZERO)) {
             this.aiMovePos = EatingGame.Instance.GetInWallPos();
         }
         let pos = this.node.parent.convertToNodeSpaceAR(this.aiMovePos);
-        let dir = pos.normalize();
+        let dir = pos.sub(this.node.getPosition()).normalize();
         this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
-        if (this.node.getPosition().sub(pos).mag() <= 10) this.aiMovePos = cc.Vec2.ZERO;
+        if (this.node.getPosition().sub(pos).mag() <= 20) this.aiMovePos = cc.Vec2.ZERO;
     }
 
     public RoleDeath() {

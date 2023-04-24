@@ -15,6 +15,12 @@ export default class BoyManager {
     public AddBoy(boy: Boy) {
         if (-1 != this.HasBoy(boy)) return;
         this.boys.push(boy);
+        boy.node.getChildByName("Visual").children.forEach((v) => {
+            v.destroy();
+        })
+        let visual = cc.instantiate(this.role.visualPrefab);
+        visual.setParent(boy.node.getChildByName("Visual"));
+        visual.setPosition(0, 0);
         this.SortBoy();
     }
 
