@@ -9,6 +9,7 @@ export default class RoleBase extends cc.Component {
     protected Ai: boolean;//是否是电脑
     protected boyManager: BoyManager;
     protected roleLevel: number = 1;
+    protected moveDir: cc.Vec2 = cc.Vec2.ZERO;
     public visualPrefab: cc.Prefab;
     private aiMovePos: cc.Vec2 = cc.Vec2.ZERO;
     onLoad() {
@@ -72,7 +73,17 @@ export default class RoleBase extends cc.Component {
         let pos = this.node.parent.convertToNodeSpaceAR(this.aiMovePos);
         let dir = pos.sub(this.node.getPosition()).normalize();
         this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
+        this.moveDir = dir;
         if (this.node.getPosition().sub(pos).mag() <= 20) this.aiMovePos = cc.Vec2.ZERO;
+    }
+
+    private UpdateRotation() {
+        if (cc.Vec2.ZERO.equals(this.moveDir)) return;
+        let rotation = (this.moveDir.angle(cc.Vec2.UP) * 180) / Math.PI;
+        if (this.moveDir.x < 0) {
+            rotation = -rotation;
+        }
+        this.node.angle = -rotation;
     }
 
     public RoleDeath() {
@@ -81,6 +92,7 @@ export default class RoleBase extends cc.Component {
 
     update(dt) {
         if (this.Ai) this.AiMove(dt);
+        this.UpdateRotation();
         this.node.getComponent(cc.CircleCollider).radius = 50 + 20 * (this.roleLevel - 1);
     }
 }

@@ -6,7 +6,6 @@ const { ccclass, property } = cc._decorator;
 export default class Player extends RoleBase {
     public static Instance: Player;
     private inputDir: cc.Vec2 = cc.Vec2.ZERO;
-    private moveDir: cc.Vec2;
     public speed: number = 300;
 
     onLoad() {
@@ -56,18 +55,8 @@ export default class Player extends RoleBase {
         this.node.y += this.moveDir.y * this.speed * dt;
     }
 
-    private UpdateRotation() {
-        if (cc.Vec2.ZERO.equals(this.moveDir)) return;
-        let rotation = (this.moveDir.angle(cc.Vec2.UP) * 180) / Math.PI;
-        if (this.moveDir.x < 0) {
-            rotation = -rotation;
-        }
-        this.node.angle = -rotation;
-    }
-
     update(dt) {
         super.update(dt);
         this.Move(dt);
-        this.UpdateRotation();
     }
 }

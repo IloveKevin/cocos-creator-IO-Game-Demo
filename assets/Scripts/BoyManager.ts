@@ -1,5 +1,6 @@
 import RoleBase from "./Base/RoleBase";
 import Boy from "./Boy";
+import EatingGame from "./EatingGame";
 
 export default class BoyManager {
     private role: RoleBase;
@@ -18,6 +19,7 @@ export default class BoyManager {
         boy.node.getChildByName("Visual").children.forEach((v) => {
             v.destroy();
         })
+        if (null == boy.GetRole()) EatingGame.Instance.boyCount--;
         let visual = cc.instantiate(this.role.visualPrefab);
         visual.setParent(boy.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
