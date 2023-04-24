@@ -9,7 +9,6 @@ export default class Player extends RoleBase {
     public speed: number = 300;
 
     onLoad() {
-        super.onLoad();
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.OnKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.OnKeyUp, this);
     }

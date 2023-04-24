@@ -35,7 +35,14 @@ export default class EatingGame extends cc.Component {
         this.player.Init(this.visualPrefabs[0], false);
         let role = cc.instantiate(this.rolePrefab)
         role.setParent(this.node);
-        role.addComponent("RoleBase").Init(this.visualPrefabs[1]);
+        let RroleBase = role.addComponent("RoleBase");
+        RroleBase.Init(this.visualPrefabs[1]);
+        for (let i = 0; i < 30; i++) {
+            let newBoy = cc.instantiate(this.boyPrefab);
+            newBoy.setParent(role);
+            newBoy.setPosition(cc.v2(0, 0));
+            RroleBase.GetBoyManager().AddBoy(newBoy.getComponent("Boy"));
+        }
     }
     public InWall(worldPos: cc.Vec2): boolean {
         return this.wallNode.getBoundingBoxToWorld().contains(worldPos);

@@ -13,6 +13,10 @@ export default class BoyManager {
         this.role = role;
     }
 
+    public GetboyCount() {
+        return this.boys.length;
+    }
+
     public AddBoy(boy: Boy) {
         if (-1 != this.HasBoy(boy)) return;
         this.boys.push(boy);

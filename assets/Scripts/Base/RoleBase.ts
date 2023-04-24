@@ -17,19 +17,20 @@ export default class RoleBase extends cc.Component {
     private eatingBoy: Boy[] = [];
     private eatingRole: RoleBase[] = [];
     private eatingTime: number = 0;
-    private eatingMaxTime: number = 1;
-
-    onLoad() {
-        this.boyManager = new BoyManager(this);
-    }
+    private eatingMaxTime: number = 0.2;
 
     public Init(visualPrefab: cc.Prefab, isAi: boolean = true) {
+        this.boyManager = new BoyManager(this);
         this.visualPrefab = visualPrefab;
         this.Ai = isAi;
         let visual = cc.instantiate(this.visualPrefab);
         visual.setParent(this.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
-        this.node.setPosition(0, 0);
+        if (!this.Ai) {
+            this.node.setPosition(0, 0);
+        } else {
+            this.node.setPosition(300, 0);
+        }
     }
 
     public GetLevel() {
@@ -113,9 +114,11 @@ export default class RoleBase extends cc.Component {
         for (let i = this.eatingBoy.length - 1; i >= 0; i--) {
             let boy: Boy = this.eatingBoy[i];
             if (!(this.Ai && boy.GetRole().Ai) && !(!this.Ai && !boy.GetRole().Ai)) {
-                if (!this.Ai) this.boyManager.AddBoy(boy);
                 boy.GetRole().GetBoyManager().DeleteBoy(boy);
                 this.eatingBoy.splice(i, 1);
+                if (!this.Ai) this.boyManager.AddBoy(boy);
+                boy.node.destroy();
+                return;
             }
         }
     }
@@ -129,14 +132,17 @@ export default class RoleBase extends cc.Component {
             }
             if (!(this.Ai && role.Ai) && !(!this.Ai && !role.Ai)) {
                 let boy = role.GetBoyManager().GetBoy();
+                console.log(boy);
                 if (boy) {
-                    if (!this.Ai) this.boyManager.AddBoy(boy);
                     role.GetBoyManager().DeleteBoy(boy);
+                    if (!this.Ai) this.boyManager.AddBoy(boy);
+                    boy.node.destroy();
                     return;
                 }
                 else {
                     role.RoleDeath();
                 }
+                return;
             }
         }
     }
