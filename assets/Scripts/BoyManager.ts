@@ -5,8 +5,8 @@ import EatingGame from "./EatingGame";
 export default class BoyManager {
     private role: RoleBase;
     private firstRBoyCount: number = 9;
-    private firshRoundR = 40;
-    private roundR = 20;
+    public firshRoundR = 40;
+    public roundR = 30;
     private boys: Boy[] = [];
     private level: number = 1;
     constructor(role: RoleBase) {
