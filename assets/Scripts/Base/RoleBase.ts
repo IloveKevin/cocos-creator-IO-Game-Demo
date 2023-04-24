@@ -1,6 +1,8 @@
 import Boy from "../Boy";
 import BoyManager from "../BoyManager";
+import CameraHolder from "../CameraHolder";
 import EatingGame from "../EatingGame";
+import EatingUtil from "../EatingUtil";
 
 const { ccclass, property } = cc._decorator;
 
@@ -36,7 +38,6 @@ export default class RoleBase extends cc.Component {
 
     public SetLevel(level: number) {
         this.roleLevel = level;
-        this.node.getComponent(cc.CircleCollider).radius = 50 + 20 * (level - 1);
     }
 
     public GetBoyManager() {
@@ -145,10 +146,14 @@ export default class RoleBase extends cc.Component {
         this.node.destroy();
     }
 
+    private UpdateRadius(dt: number) {
+        this.node.getComponent(cc.CircleCollider).radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
+    }
+
     update(dt) {
         if (this.Ai) this.AiMove(dt);
         this.Eating(dt);
         this.UpdateRotation();
-        this.node.getComponent(cc.CircleCollider).radius = this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1);
+        this.UpdateRadius(dt);
     }
 }

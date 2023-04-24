@@ -1,20 +1,18 @@
-import Player from "./Player";
+import EatingUtil from "./EatingUtil";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class CameraHolder extends cc.Component {
-    public static Instance: CameraHolder;
     @property([cc.Node])
     cameras: cc.Node[] = [];
-
-    protected onLoad(): void {
-        CameraHolder.Instance = this;
-    }
-    private ModifyCamera() {
-        if (!Player.Instance) return;
+    public player;
+    private zoomRatio = 1;
+    private ModifyCamera(dt: number) {
+        if (!this.player) return;
         this.cameras.forEach((value) => {
-            value.setPosition(this.node.parent.convertToNodeSpaceAR(Player.Instance.node.parent.convertToWorldSpaceAR(Player.Instance.node.getPosition())));
+            value.setPosition(this.node.parent.convertToNodeSpaceAR(this.player.node.parent.convertToWorldSpaceAR(this.player.node.getPosition())));
+            value.getComponent(cc.Camera).zoomRatio = EatingUtil.Lerp(value.getComponent(cc.Camera).zoomRatio, this.zoomRatio, dt);
         })
     }
 
@@ -29,7 +27,19 @@ export default class CameraHolder extends cc.Component {
         return true;
     }
 
+    public SetZoomRatio(level) {
+        let zoomRatio: number;
+        if (level <= 2) zoomRatio = 1;
+        else if (level <= 4) zoomRatio = 0.9;
+        else if (level <= 6) zoomRatio = 0.8;
+        else if (level <= 8) zoomRatio = 0.7;
+        else {
+            zoomRatio = 0.6;
+        }
+        this.zoomRatio = zoomRatio;
+    }
+
     update(dt) {
-        this.ModifyCamera();
+        this.ModifyCamera(dt);
     }
 }

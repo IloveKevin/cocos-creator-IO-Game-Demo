@@ -1,16 +1,15 @@
 import RoleBase from "./Base/RoleBase";
+import EatingGame from "./EatingGame";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Player extends RoleBase {
-    public static Instance: Player;
     private inputDir: cc.Vec2 = cc.Vec2.ZERO;
     public speed: number = 300;
 
     onLoad() {
         super.onLoad();
-        Player.Instance = this;
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.OnKeyDown, this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP, this.OnKeyUp, this);
     }
@@ -58,5 +57,6 @@ export default class Player extends RoleBase {
     update(dt) {
         super.update(dt);
         this.Move(dt);
+        EatingGame.Instance.cameraHolder.SetZoomRatio(this.roleLevel);
     }
 }

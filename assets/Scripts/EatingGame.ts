@@ -1,3 +1,5 @@
+import CameraHolder from "./CameraHolder";
+
 const { ccclass, property } = cc._decorator;
 
 @ccclass
@@ -5,6 +7,8 @@ export default class EatingGame extends cc.Component {
     public static Instance: EatingGame;
     private boyMaxCount = 100;
     public boyCount = 0;
+    @property(CameraHolder)
+    cameraHolder: CameraHolder = null;
     @property(cc.Prefab)
     rolePrefab: cc.Prefab = null;
     @property(cc.Prefab)
@@ -13,6 +17,7 @@ export default class EatingGame extends cc.Component {
     visualPrefabs: cc.Prefab[] = [];
     @property(cc.Node)
     wallNode: cc.Node = null;
+    public player;
 
     onLoad() {
         EatingGame.Instance = this;
@@ -25,7 +30,9 @@ export default class EatingGame extends cc.Component {
     protected start(): void {
         let player = cc.instantiate(this.rolePrefab)
         player.setParent(this.node);
-        player.addComponent("Player").Init(this.visualPrefabs[0], false);
+        this.player = player.addComponent("Player");
+        this.cameraHolder.player = this.player;
+        this.player.Init(this.visualPrefabs[0], false);
         let role = cc.instantiate(this.rolePrefab)
         role.setParent(this.node);
         role.addComponent("RoleBase").Init(this.visualPrefabs[1]);

@@ -82,6 +82,6 @@ export default class Boy extends cc.Component {
         if (this.moveDir.x < 0) {
             rotation = -rotation;
         }
-        this.node.angle = EatingUtil.Lerp(this.node.angle, -rotation, dt);
+        this.node.angle = EatingUtil.Lerp(this.node.angle, -rotation, dt * 10);
     }
 }
