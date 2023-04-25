@@ -80,6 +80,7 @@ export default class Boy extends cc.Component {
     }
 
     private UpdateRotation(dt: number) {
+        if (this.moveDir.equals(cc.Vec2.ZERO)) return;
         let rotation = (this.moveDir.angle(cc.Vec2.UP) * 180) / Math.PI;
         if (this.moveDir.x < 0) {
             rotation = -rotation;

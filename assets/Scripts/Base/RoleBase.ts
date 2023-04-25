@@ -8,7 +8,7 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class RoleBase extends cc.Component {
-    private roleLevel: number = 1;
+    protected roleLevel: number = 1;
     public visualPrefab: cc.Prefab = null;
     public Ai: boolean = true;
     protected boyManager: BoyManager;
@@ -19,6 +19,7 @@ export default class RoleBase extends cc.Component {
     public eatingBoy: Boy[] = [];
     private eatingTime: number = 0;
     public speed: number = EatingGameConfig.roleMoveSpeed;
+    public id: number;
 
     public Init(visualPrefab: cc.Prefab, level: number = 1, ai: boolean = true) {
         this.boyManager = new BoyManager(this);
@@ -28,6 +29,9 @@ export default class RoleBase extends cc.Component {
         let visual = cc.instantiate(visualPrefab);
         visual.setParent(this.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
+        this.node.getComponents(cc.CircleCollider).forEach((value) => {
+            if (EatingGameConfig.ColliderTag.NEIYUAN == value.tag) value.radius = visual.height > visual.width ? visual.height : visual.width;
+        });
         let boyCount = 4 + level;
         for (let i = 0; i < boyCount; i++) {
             let boy = (EatingGame.Instance.GetBoy());
@@ -51,12 +55,12 @@ export default class RoleBase extends cc.Component {
     }
 
     public onCollisionEnter(other: cc.Collider, self: cc.Collider) {
-        if (EatingGameConfig.ColliderTag.role == self.tag) {
+        if (EatingGameConfig.ColliderTag.WAIYUAN == self.tag) {
             switch (other.tag) {
                 case EatingGameConfig.ColliderTag.boy:
                     this.eatingBoy.push(other.node.getComponent("Boy"));
                     break;
-                case EatingGameConfig.ColliderTag.roleR:
+                case EatingGameConfig.ColliderTag.NEIYUAN:
                     this.eatingRole.push(other.node.getComponent("RoleBase"));
                     break;
             }
@@ -64,14 +68,14 @@ export default class RoleBase extends cc.Component {
     }
 
     public onCollisionExit(other: cc.Collider, self: cc.Collider) {
-        if (EatingGameConfig.ColliderTag.role == self.tag) {
+        if (EatingGameConfig.ColliderTag.WAIYUAN == self.tag) {
             switch (other.tag) {
                 case EatingGameConfig.ColliderTag.boy:
                     for (let i = 0; i < this.eatingBoy.length; i++) {
                         if (this.eatingBoy[i] == other.node.getComponent("Boy")) this.eatingBoy.splice(i, 1);
                     }
                     break;
-                case EatingGameConfig.ColliderTag.roleR:
+                case EatingGameConfig.ColliderTag.NEIYUAN:
                     for (let i = 0; i < this.eatingRole.length; i++) {
                         if (this.eatingRole[i] == other.node.getComponent("RoleBase")) this.eatingRole.splice(i, 1);
                     }
@@ -158,8 +162,6 @@ export default class RoleBase extends cc.Component {
     }
 
     private Eating(boy: Boy) {
-        if (boy.GetRole())
-            console.log(boy.GetRole().Ai);
         this.eatingTime = 0;
         if (boy.GetRole()) boy.GetRole().GetBoyManager().DeleteBoy(boy);
         this.boyManager.AddBoy(boy);
@@ -173,7 +175,7 @@ export default class RoleBase extends cc.Component {
 
     private UpdateRadius(dt: number) {
         this.node.getComponents(cc.CircleCollider).forEach((value) => {
-            if (1 == value.tag) value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
+            if (EatingGameConfig.ColliderTag.WAIYUAN == value.tag) value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
         })
     }
 

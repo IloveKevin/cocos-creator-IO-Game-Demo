@@ -21,6 +21,7 @@ export default class EatingGame extends cc.Component {
     public player;
     public roleManager: RoleManager;
     private boyId: number = 0;
+    private roleId: number = 0;
 
     onLoad() {
         EatingGame.Instance = this;
@@ -32,17 +33,17 @@ export default class EatingGame extends cc.Component {
     }
 
     protected start(): void {
-        let player = cc.instantiate(this.rolePrefab)
-        player.setParent(this.node);
-        this.player = player.addComponent("Player");
+        let newPlayer = this.GetRole(true);
+        newPlayer.setParent(this.node);
+        this.player = newPlayer.getComponent("Player");
         this.cameraHolder.player = this.player;
         this.player.Init(this.visualPrefabs[0], 1, false);
         this.roleManager.AddRole(this.player);
         for (let i = 0; i < 2; i++) {
-            let role = cc.instantiate(this.rolePrefab);
+            let role = this.GetRole();
             role.setParent(this.node);
             role.setPosition(200, 0);
-            let RroleBase = role.addComponent("RoleBase");
+            let RroleBase = role.getComponent("RoleBase");
             RroleBase.Init(this.visualPrefabs[1], 2);
             this.roleManager.AddRole(RroleBase);
         }
@@ -69,6 +70,19 @@ export default class EatingGame extends cc.Component {
         boy.id = this.boyId;
         this.boyId++;
         return newBoy
+    }
+
+    public GetRole(isPlayer: boolean = false) {
+        let newRole = cc.instantiate(this.rolePrefab);
+        let role;
+        if (isPlayer) {
+            role = newRole.addComponent("Player");
+        } else {
+            role = newRole.addComponent("RoleBase");
+        }
+        role.id = this.roleId;
+        this.roleId++;
+        return newRole;
     }
 
     protected update(dt: number): void {
