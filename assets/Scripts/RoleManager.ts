@@ -1,35 +1,39 @@
 import RoleBase from "./Base/RoleBase";
 
 export default class RoleManager {
-    private role: RoleBase[] = [];
+    private roles: RoleBase[] = [];
+
+    public GetRoles(): RoleBase[] {
+        return this.roles;
+    }
 
     public AddRole(role: RoleBase) {
-        if (!this.HasRole(role)) this.role.push(role);
+        if (!this.HasRole(role)) this.roles.push(role);
     }
 
     public DeleteRole(role: RoleBase) {
-        for (let i = 0; i < this.role.length; i++) {
-            if (role == this.role[i]) this.role.splice(i, 1);
+        for (let i = 0; i < this.roles.length; i++) {
+            if (role == this.roles[i]) this.roles.splice(i, 1);
         }
     }
 
     public ClearRole() {
-        this.role = [];
+        this.roles = [];
     }
 
     private HasRole(role: RoleBase): boolean {
         let has = false;
-        this.role.forEach((value) => {
+        this.roles.forEach((value) => {
             if (value == role) has = true;
         })
         return has;
     }
 
     public UpdateRoleEat() {
-        for (let i = 0; i < this.role.length; i++) {
-            for (let j = 0; j < this.role.length; j++) {
-                if (this.role[i] == this.role[j]) continue;
-                this.RoleAEatRoleB(this.role[i], this.role[j]);
+        for (let i = 0; i < this.roles.length; i++) {
+            for (let j = 0; j < this.roles.length; j++) {
+                if (this.roles[i] == this.roles[j]) continue;
+                this.RoleAEatRoleB(this.roles[i], this.roles[j]);
             }
         }
     }
