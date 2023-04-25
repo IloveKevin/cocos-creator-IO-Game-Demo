@@ -62,7 +62,7 @@ export default class RoleBase extends cc.Component {
                 case EatingGameConfig.ColliderTag.boy:
                     let boy = other.node.getComponent("Boy");
                     if (boy.GetRole()) {
-                        if (!((boy.GetRole().Ai && this.Ai) && (!boy.GetRole().Ai && !this.Ai)) || boy.GetRole() == this) return;
+                        if (!EatingUtil.GetAB(boy.GetRole().Ai, this.Ai) || boy.GetRole() == this) return;
                     }
                     else {
                         if (this.Ai) return;
@@ -71,7 +71,7 @@ export default class RoleBase extends cc.Component {
                     break;
                 case EatingGameConfig.ColliderTag.NEIYUAN:
                     let role = other.node.getComponent("RoleBase");
-                    if ((role.Ai && this.Ai) && (!role.Ai && !this.Ai)) return;
+                    if (!EatingUtil.GetAB(role.Ai, this.Ai)) return;
                     this.eatingRole.push(role);
                     break;
             }
@@ -117,7 +117,6 @@ export default class RoleBase extends cc.Component {
     }
 
     protected UpdateEat(dt: number) {
-        console.log(this.eatingRole.length, this.eatingBoy.length);
         let reset: boolean = false;
         if (this.eatingRole.length > 0) {
             this.eatingTime += dt;
@@ -203,7 +202,9 @@ export default class RoleBase extends cc.Component {
 
     update(dt) {
         if (this.Ai) this.AiMove(dt);
+        let a = Date.now();
         this.UpdateEat(dt);
+        if (Date.now() - a > 100) console.log(Date.now() - a);
         this.UpdateRotation();
         this.UpdateRadius(dt);
     }

@@ -25,7 +25,7 @@ export default class BoyManager {
             v.destroy();
         })
         boy.node.setParent(this.role.boysNode);
-        if (null == boy.GetRole()) EatingGame.Instance.boyCount--;
+        if (boy.inGame) EatingGame.Instance.boyCount--;
         let visual = cc.instantiate(this.role.visualPrefab);
         visual.setParent(boy.node.getChildByName("Visual"));
         visual.setPosition(0, 0);

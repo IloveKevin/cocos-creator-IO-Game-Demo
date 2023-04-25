@@ -7,7 +7,6 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export default class EatingGame extends cc.Component {
     public static Instance: EatingGame;
-    private boyMaxCount = 100;
     public boyCount = 0;
     @property(CameraHolder)
     cameraHolder: CameraHolder = null;
@@ -40,6 +39,7 @@ export default class EatingGame extends cc.Component {
         this.cameraHolder.player = this.player;
         this.player.Init(this.visualPrefabs[0], 1, false);
         this.roleManager.AddRole(this.player);
+        // this.CreatRole(1, 1);
         // let level = 2;
         // for (let i = 0; i < 2; i++) {
         //     let role = this.GetRole();
@@ -62,6 +62,8 @@ export default class EatingGame extends cc.Component {
         this.boyCount++;
         let pos = this.GetInWallPos();
         let newBoy = this.GetBoy();
+        let boy = newBoy.getComponent("Boy");
+        boy.inGame = true;
         newBoy.setParent(this.node);
         newBoy.setPosition(this.node.convertToNodeSpaceAR(pos));
     }
@@ -98,6 +100,7 @@ export default class EatingGame extends cc.Component {
                 pos = this.GetInWallPos();
             }
             newRole.setPosition(newRole.parent.convertToNodeSpaceAR(pos));
+            // newRole.setPosition(0, 0);
             role.Init(this.visualPrefabs[1], level);
             this.roleManager.AddRole(role);
         }
@@ -129,7 +132,7 @@ export default class EatingGame extends cc.Component {
     }
 
     protected update(dt: number): void {
-        if (this.boyCount < this.boyMaxCount) this.CreatBoy();
+        if (this.boyCount < EatingGameConfig.gameMaxBoy) this.CreatBoy();
         if (null != this.roleManager) this.roleManager.UpdateRoleEat();
         this.UpdateRole();
     }
