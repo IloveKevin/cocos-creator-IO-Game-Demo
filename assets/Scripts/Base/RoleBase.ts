@@ -90,8 +90,8 @@ export default class RoleBase extends cc.Component {
         }
         let pos = this.node.parent.convertToNodeSpaceAR(this.aiMovePos);
         let dir = pos.sub(this.node.getPosition()).normalize();
-        // this.node.setPosition(this.node.getPosition().add(dir.mul(dt * this.speed)));
-        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
+        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * this.speed)));
+        // this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
         this.moveDir = dir;
         if (this.node.getPosition().sub(pos).mag() <= 20) this.aiMovePos = cc.Vec2.ZERO;
     }
@@ -144,8 +144,11 @@ export default class RoleBase extends cc.Component {
     private BoyEating(): Boy {
         for (let i = this.eatingBoy.length - 1; i >= 0; i--) {
             let boy: Boy = this.eatingBoy[i];
-            if (!boy.GetRole()) return boy;
-            if (boy.GetRole().beEatingRole == this) return boy;
+            if (!boy.GetRole()) {
+                if (!this.Ai)
+                    return boy;
+            }
+            else if (boy.GetRole().beEatingRole == this) return boy;
         }
         return null;
     }
@@ -175,6 +178,10 @@ export default class RoleBase extends cc.Component {
 
     private UpdateRadius(dt: number) {
         this.node.getComponents(cc.CircleCollider).forEach((value) => {
+            if (this.Ai) {
+                value.radius = this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1);
+                return;
+            }
             if (EatingGameConfig.ColliderTag.WAIYUAN == value.tag) value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
         })
     }

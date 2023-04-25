@@ -39,12 +39,13 @@ export default class EatingGame extends cc.Component {
         this.cameraHolder.player = this.player;
         this.player.Init(this.visualPrefabs[0], 1, false);
         this.roleManager.AddRole(this.player);
+        let level = 2;
         for (let i = 0; i < 2; i++) {
             let role = this.GetRole();
             role.setParent(this.node);
             role.setPosition(200, 0);
             let RroleBase = role.getComponent("RoleBase");
-            RroleBase.Init(this.visualPrefabs[1], 2);
+            RroleBase.Init(this.visualPrefabs[1], level);
             this.roleManager.AddRole(RroleBase);
         }
     }
