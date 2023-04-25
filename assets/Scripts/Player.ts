@@ -6,7 +6,6 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export default class Player extends RoleBase {
     private inputDir: cc.Vec2 = cc.Vec2.ZERO;
-    public speed: number = 300;
 
     onLoad() {
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, this.OnKeyDown, this);

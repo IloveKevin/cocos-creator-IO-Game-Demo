@@ -1,5 +1,6 @@
 import RoleBase from "./Base/RoleBase";
 import EatingGame from "./EatingGame";
+import EatingGameConfig from "./EatingGameConfig";
 import EatingUtil from "./EatingUtil";
 
 const { ccclass, property } = cc._decorator;
@@ -10,10 +11,10 @@ export default class Boy extends cc.Component {
     //移动方向
     private moveDir: cc.Vec2 = cc.v2(1, 0);
     private aiMovePos: cc.Vec2 = cc.Vec2.ZERO;
-    private maxSpeed: number = 400;
+    private maxSpeed: number = EatingGameConfig.boySpeed;
     private moveSpeed: cc.Vec2 = cc.Vec2.ZERO;
     private accelerationDir: cc.Vec2 = cc.Vec2.ZERO;
-    private acceleration: number = 1500;
+    private acceleration: number = EatingGameConfig.boyAcceleration;
     public targetPos: cc.Vec2 = null;
     private rb: cc.RigidBody;
 

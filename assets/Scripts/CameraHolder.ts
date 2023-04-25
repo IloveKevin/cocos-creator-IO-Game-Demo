@@ -9,7 +9,7 @@ export default class CameraHolder extends cc.Component {
     public player;
     private zoomRatio = 1;
     private ModifyCamera(dt: number) {
-        if (!this.player) return;
+        if (!this.player || cc.isValid(this.player)) return;
         this.cameras.forEach((value) => {
             value.setPosition(this.node.parent.convertToNodeSpaceAR(this.player.node.parent.convertToWorldSpaceAR(this.player.node.getPosition())));
             value.getComponent(cc.Camera).zoomRatio = EatingUtil.Lerp(value.getComponent(cc.Camera).zoomRatio, this.zoomRatio, dt);
@@ -17,7 +17,6 @@ export default class CameraHolder extends cc.Component {
     }
 
     public InPlayerHorizons(worldPos): boolean {
-        let pos = this.node.parent.convertToNodeSpaceAR(worldPos);
         let camera = this.cameras[0];
         let HorizonsSize = cc.v2(cc.winSize.width * 2, cc.winSize.height * 2).mul(camera.getComponent(cc.Camera).zoomRatio);
         if (worldPos.x < ((camera.parent.convertToWorldSpaceAR(camera.getPosition()).x) - HorizonsSize.x / 2) ||
