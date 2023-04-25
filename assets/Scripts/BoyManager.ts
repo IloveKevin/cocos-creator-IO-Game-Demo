@@ -9,6 +9,7 @@ export default class BoyManager {
     public roundR = 30;
     private boys: Boy[] = [];
     private level: number = 1;
+
     constructor(role: RoleBase) {
         this.role = role;
     }
@@ -23,6 +24,7 @@ export default class BoyManager {
         boy.node.getChildByName("Visual").children.forEach((v) => {
             v.destroy();
         })
+        boy.node.setParent(this.role.boysNode);
         if (null == boy.GetRole()) EatingGame.Instance.boyCount--;
         let visual = cc.instantiate(this.role.visualPrefab);
         visual.setParent(boy.node.getChildByName("Visual"));

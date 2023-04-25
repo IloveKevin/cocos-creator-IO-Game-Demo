@@ -14,6 +14,7 @@ export default class RoleBase extends cc.Component {
     protected boyManager: BoyManager;
     protected moveDir: cc.Vec2 = cc.Vec2.ZERO;
     private aiMovePos: cc.Vec2 = cc.Vec2.ZERO;
+    public boysNode: cc.Node;
     public beEatingRole: RoleBase = null;
     public eatingRole: RoleBase[] = [];
     public eatingBoy: Boy[] = [];
@@ -26,6 +27,7 @@ export default class RoleBase extends cc.Component {
         this.roleLevel = level;
         this.visualPrefab = visualPrefab;
         this.Ai = ai;
+        this.boysNode = this.node.getChildByName("Boys");
         let visual = cc.instantiate(visualPrefab);
         visual.setParent(this.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
@@ -173,6 +175,9 @@ export default class RoleBase extends cc.Component {
     public RoleDeath() {
         //角色死亡
         EatingGame.Instance.roleManager.DeleteRole(this);
+        this.boysNode.children.forEach((value) => {
+            value.destroy();
+        })
         this.node.destroy();
     }
 
