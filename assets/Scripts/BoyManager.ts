@@ -55,6 +55,10 @@ export default class BoyManager {
         this.SortBoy();
     }
 
+    public ClearBoy() {
+        this.boys = [];
+    }
+
     private SortBoy() {
         for (let i = 1; i <= this.boys.length; i++) {
             this.boys[i - 1].ChangeTarget(this.role, this.GetPosById(i));

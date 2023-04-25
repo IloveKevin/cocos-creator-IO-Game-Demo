@@ -40,6 +40,7 @@ export default class RoleManager {
     }
 
     private RoleAEatRoleB(roleA: RoleBase, roleB: RoleBase) {
+        if (!cc.isValid(roleA) || !cc.isValid(roleB)) return;
         if (roleA.GetLevel() > roleB.GetLevel()) {
             for (let i = 0; i < roleA.eatingRole.length; i++) {
                 if (!cc.isValid(roleA.eatingRole[i])) roleA.eatingRole.slice(i, 1);

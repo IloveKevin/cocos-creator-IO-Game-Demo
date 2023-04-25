@@ -2,6 +2,7 @@ import Boy from "../Boy";
 import BoyManager from "../BoyManager";
 import EatingGame from "../EatingGame";
 import EatingGameConfig from "../EatingGameConfig";
+import { nodePoolEnum } from "../EatingNodePool";
 import EatingUtil from "../EatingUtil";
 
 const { ccclass, property } = cc._decorator;
@@ -23,6 +24,7 @@ export default class RoleBase extends cc.Component {
     public id: number;
 
     public Init(visualPrefab: cc.Prefab, level: number = 1, ai: boolean = true) {
+        this.moveDir = cc.Vec2.ZERO;
         this.boyManager = new BoyManager(this);
         this.roleLevel = level;
         this.visualPrefab = visualPrefab;
@@ -35,6 +37,7 @@ export default class RoleBase extends cc.Component {
             if (EatingGameConfig.ColliderTag.NEIYUAN == value.tag) value.radius = visual.height > visual.width ? visual.height : visual.width;
         });
         let boyCount = 4 + level;
+        // if (!this.Ai) boyCount = 300;
         for (let i = 0; i < boyCount; i++) {
             let boy = (EatingGame.Instance.GetBoy());
             boy.setParent(EatingGame.Instance.node);
@@ -101,13 +104,15 @@ export default class RoleBase extends cc.Component {
         }
         let pos = this.node.parent.convertToNodeSpaceAR(this.aiMovePos);
         let dir = pos.sub(this.node.getPosition()).normalize();
-        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * this.speed)));
-        // this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
+        // this.node.setPosition(this.node.getPosition().add(dir.mul(dt * this.speed)));
+        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
         this.moveDir = dir;
         if (this.node.getPosition().sub(pos).mag() <= 20) this.aiMovePos = cc.Vec2.ZERO;
     }
 
     private UpdateRotation() {
+        // if (this.Ai)
+        //     console.log(this.moveDir.x, this.moveDir.y);
         if (cc.Vec2.ZERO.equals(this.moveDir)) return;
         let rotation = (this.moveDir.angle(cc.Vec2.UP) * 180) / Math.PI;
         if (this.moveDir.x < 0) {
@@ -178,25 +183,40 @@ export default class RoleBase extends cc.Component {
     private Eating(boy: Boy) {
         this.eatingTime = 0;
         if (boy.GetRole()) boy.GetRole().GetBoyManager().DeleteBoy(boy);
-        this.boyManager.AddBoy(boy);
+        if (this.Ai) {
+            EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.boy, boy.node);
+        } else {
+            this.boyManager.AddBoy(boy);
+        }
     }
 
     public RoleDeath() {
         //角色死亡
         EatingGame.Instance.roleManager.DeleteRole(this);
+        this.boyManager.ClearBoy();
+        let a = Date.now();
         this.boysNode.children.forEach((value) => {
-            value.destroy();
+            EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.boy, value);
+            // value.destroy();
         })
-        this.node.destroy();
+        console.log("角色死亡时销毁儿子时间", Date.now() - a);
+        EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.role, this.node);
+        this.destroy();
+        console.log("角色死亡时销毁本身时间", Date.now() - a);
+        console.log("---------------");
+        // this.node.destroy();
     }
 
     private UpdateRadius(dt: number) {
+        if (null == this.boyManager || undefined == this.boyManager) return;
         this.node.getComponents(cc.CircleCollider).forEach((value) => {
-            if (this.Ai) {
-                value.radius = this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1);
-                return;
+            if (EatingGameConfig.ColliderTag.WAIYUAN == value.tag) {
+                if (this.Ai) {
+                    value.radius = this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1);
+                    return;
+                }
+                value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
             }
-            if (EatingGameConfig.ColliderTag.WAIYUAN == value.tag) value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
         })
     }
 
@@ -204,7 +224,7 @@ export default class RoleBase extends cc.Component {
         if (this.Ai) this.AiMove(dt);
         let a = Date.now();
         this.UpdateEat(dt);
-        if (Date.now() - a > 100) console.log(Date.now() - a);
+        if (Date.now() - a > 100) console.log("角色处理eat的时间", Date.now() - a, this.eatingRole.length, this.eatingBoy.length);
         this.UpdateRotation();
         this.UpdateRadius(dt);
     }

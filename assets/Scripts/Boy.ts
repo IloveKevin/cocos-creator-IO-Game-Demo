@@ -55,6 +55,7 @@ export default class Boy extends cc.Component {
             this.AiMove(dt);
             return;
         }
+        if (!cc.isValid(this.role)) return;
         this.UpdateAccelerationDir();
         this.UpdateMoveSpeed(dt);
         this.UpdateRotation(dt);
