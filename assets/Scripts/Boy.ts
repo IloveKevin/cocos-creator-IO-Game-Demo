@@ -17,6 +17,7 @@ export default class Boy extends cc.Component {
     private acceleration: number = EatingGameConfig.boyAcceleration;
     public targetPos: cc.Vec2 = null;
     private rb: cc.RigidBody;
+    public id: number;
 
     protected onLoad(): void {
         this.rb = this.node.getComponent(cc.RigidBody);

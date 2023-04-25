@@ -28,6 +28,13 @@ export default class RoleBase extends cc.Component {
         let visual = cc.instantiate(visualPrefab);
         visual.setParent(this.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
+        let boyCount = 4 + level;
+        for (let i = 0; i < boyCount; i++) {
+            let boy = (EatingGame.Instance.GetBoy());
+            boy.setParent(EatingGame.Instance.node);
+            boy.setPosition(boy.parent.convertToNodeSpaceAR(this.node.parent.convertToWorldSpaceAR(this.node.getPosition())));
+            this.boyManager.AddBoy(boy.getComponent(Boy));
+        }
     }
 
     public GetLevel() {
@@ -47,7 +54,7 @@ export default class RoleBase extends cc.Component {
         if (EatingGameConfig.ColliderTag.role == self.tag) {
             switch (other.tag) {
                 case EatingGameConfig.ColliderTag.boy:
-                    this.eatingBoy.push(other.node.getComponent("Bot"));
+                    this.eatingBoy.push(other.node.getComponent("Boy"));
                     break;
                 case EatingGameConfig.ColliderTag.roleR:
                     this.eatingRole.push(other.node.getComponent("RoleBase"));
@@ -79,7 +86,8 @@ export default class RoleBase extends cc.Component {
         }
         let pos = this.node.parent.convertToNodeSpaceAR(this.aiMovePos);
         let dir = pos.sub(this.node.getPosition()).normalize();
-        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * this.speed)));
+        // this.node.setPosition(this.node.getPosition().add(dir.mul(dt * this.speed)));
+        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
         this.moveDir = dir;
         if (this.node.getPosition().sub(pos).mag() <= 20) this.aiMovePos = cc.Vec2.ZERO;
     }
@@ -94,45 +102,67 @@ export default class RoleBase extends cc.Component {
     }
 
     protected UpdateEat(dt: number) {
+        let reset: boolean = false;
         if (this.eatingRole.length > 0) {
             this.eatingTime += dt;
-            if (this.eatingTime >= EatingGameConfig.maxEatingTime && this.RoleEating()) return;
+            let roles: RoleBase[] = this.RoleEating();
+            if (roles.length > 0) {
+                if (this.eatingTime >= EatingGameConfig.maxEatingTime) {
+                    roles.forEach((value) => {
+                        let boy = value.GetBoyManager().GetBoy();
+                        if (boy) this.Eating(boy);
+                        else value.RoleDeath();
+                    })
+                }
+                return;
+            }
+            else {
+                reset = true;
+            }
         }
         if (this.eatingBoy.length > 0) {
             this.eatingTime += dt;
-            if (this.eatingTime >= EatingGameConfig.maxEatingTime && this.BoyEating()) return;
-        }
-        this.eatingTime = 0;
-    }
-
-    private BoyEating() {
-        for (let i = this.eatingBoy.length - 1; i >= 0; i--) {
-            let boy: Boy = this.eatingBoy[i];
-            if (boy.GetRole().beEatingRole == this && this.Eating(boy)) return true;
-        }
-        return false;
-    }
-
-    private RoleEating(): boolean {
-        for (let i = 0; i < this.eatingBoy.length; i++) {
-            let role = this.eatingRole[i];
-            if (role.beEatingRole == this) {
-                let boy = role.GetBoyManager().GetBoy()
-                if (null == boy) {
-                    role.node.destroy();
-                    return true;
+            let boy: Boy = this.BoyEating();
+            if (boy) {
+                if (this.eatingTime >= EatingGameConfig.maxEatingTime) {
+                    this.Eating(boy);
                 }
-                if (this.Eating(boy)) return true;
+                return;
+            }
+            else {
+                reset = true;
             }
         }
-        return false;
+        if (reset)
+            this.eatingTime = 0;
     }
 
-    private Eating(boy: Boy): boolean {
+    private BoyEating(): Boy {
+        for (let i = this.eatingBoy.length - 1; i >= 0; i--) {
+            let boy: Boy = this.eatingBoy[i];
+            if (!boy.GetRole()) return boy;
+            if (boy.GetRole().beEatingRole == this) return boy;
+        }
+        return null;
+    }
+
+    private RoleEating(): RoleBase[] {
+        let roles: RoleBase[] = [];
+        for (let i = 0; i < this.eatingRole.length; i++) {
+            let role = this.eatingRole[i];
+            if (role.beEatingRole == this) {
+                roles.push(role);
+            }
+        }
+        return roles;
+    }
+
+    private Eating(boy: Boy) {
+        if (boy.GetRole())
+            console.log(boy.GetRole().Ai);
         this.eatingTime = 0;
+        if (boy.GetRole()) boy.GetRole().GetBoyManager().DeleteBoy(boy);
         this.boyManager.AddBoy(boy);
-        boy.GetRole().GetBoyManager().DeleteBoy(boy);
-        return true;
     }
 
     public RoleDeath() {
@@ -142,7 +172,9 @@ export default class RoleBase extends cc.Component {
     }
 
     private UpdateRadius(dt: number) {
-        this.node.getComponent(cc.CircleCollider).radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
+        this.node.getComponents(cc.CircleCollider).forEach((value) => {
+            if (1 == value.tag) value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
+        })
     }
 
     update(dt) {

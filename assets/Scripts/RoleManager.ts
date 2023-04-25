@@ -37,14 +37,14 @@ export default class RoleManager {
     private RoleAEatRoleB(roleA: RoleBase, roleB: RoleBase) {
         if (roleA.GetLevel() > roleB.GetLevel()) {
             for (let i = 0; i < roleA.eatingRole.length; i++) {
-                if (cc.isValid(roleA.eatingRole[i])) roleA.eatingRole.slice(i, 1);
+                if (!cc.isValid(roleA.eatingRole[i])) roleA.eatingRole.slice(i, 1);
                 if (roleA.eatingRole[i] == roleB && (null == roleB.beEatingRole || roleA == roleB.beEatingRole)) {
                     roleB.beEatingRole = roleA;
                     return;
                 }
             }
             for (let i = 0; i < roleA.eatingBoy.length; i++) {
-                if (cc.isValid(roleA.eatingBoy[i])) roleA.eatingBoy.slice(i, 1);
+                if (!cc.isValid(roleA.eatingBoy[i])) roleA.eatingBoy.slice(i, 1);
                 if (roleA.eatingBoy[i].GetRole() == roleB && (null == roleB.beEatingRole || roleA == roleB.beEatingRole)) {
                     roleB.beEatingRole = roleA;
                     return;

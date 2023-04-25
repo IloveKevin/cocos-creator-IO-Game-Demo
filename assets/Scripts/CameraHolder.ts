@@ -9,7 +9,7 @@ export default class CameraHolder extends cc.Component {
     public player;
     private zoomRatio = 1;
     private ModifyCamera(dt: number) {
-        if (!this.player || cc.isValid(this.player)) return;
+        if (!this.player || !cc.isValid(this.player)) return;
         this.cameras.forEach((value) => {
             value.setPosition(this.node.parent.convertToNodeSpaceAR(this.player.node.parent.convertToWorldSpaceAR(this.player.node.getPosition())));
             value.getComponent(cc.Camera).zoomRatio = EatingUtil.Lerp(value.getComponent(cc.Camera).zoomRatio, this.zoomRatio, dt);
