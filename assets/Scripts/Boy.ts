@@ -1,8 +1,6 @@
 import RoleBase from "./Base/RoleBase";
 import EatingGame from "./EatingGame";
 import EatingGameConfig from "./EatingGameConfig";
-import { nodePoolEnum } from "./EatingNodePool";
-import EatingUtil from "./EatingUtil";
 
 const { ccclass, property } = cc._decorator;
 
