@@ -13,6 +13,9 @@ export default class Player extends RoleBase {
     }
 
     private OnKeyDown(e: cc.Event.EventKeyboard) {
+        if (e.keyCode == cc.macro.KEY.space) {
+            this.RoleDeath();
+        }
         switch (e.keyCode) {
             case cc.macro.KEY.a:
                 this.inputDir.x = -1

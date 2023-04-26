@@ -4,7 +4,7 @@ import EatingGame from "./EatingGame";
 
 export default class BoyManager {
     private role: RoleBase;
-    private firstRBoyCount: number = 9;
+    private firstRBoyCount: number = 8;
     public firshRoundR = 40;
     public roundR = 30;
     private boys: Boy[] = [];
@@ -18,13 +18,17 @@ export default class BoyManager {
         return this.boys.length;
     }
 
+    public GetBoys() {
+        return this.boys;
+    }
+
     public AddBoy(boy: Boy) {
         if (-1 != this.HasBoy(boy)) return;
         this.boys.push(boy);
         boy.node.getChildByName("Visual").children.forEach((v) => {
             v.destroy();
         })
-        boy.node.setParent(this.role.boysNode);
+        // boy.node.setParent(this.role.boysNode);
         if (boy.inGame) EatingGame.Instance.boyCount--;
         let visual = cc.instantiate(this.role.visualPrefab);
         visual.setParent(boy.node.getChildByName("Visual"));

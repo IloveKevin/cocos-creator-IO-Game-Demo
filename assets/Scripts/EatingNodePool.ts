@@ -25,8 +25,8 @@ export default class EatingNodePool {
         }
     }
 
-    public CreatNodePool(nodePoolName: nodePoolEnum, prefab: cc.Prefab) {
-        let newNodePool: cc.NodePool = new cc.NodePool();
+    public CreatNodePool(nodePoolName: nodePoolEnum, prefab: cc.Prefab, scriptString: string = "") {
+        let newNodePool: cc.NodePool = new cc.NodePool(scriptString);
         this.nodePool.set(nodePoolName, newNodePool);
         this.prefabs.set(nodePoolName, prefab);
     }
@@ -34,7 +34,7 @@ export default class EatingNodePool {
     public PutNode(nodePoolName: nodePoolEnum, node: cc.Node) {
         let a = Date.now();
         this.nodePool.get(nodePoolName).put(node);
-        console.log("执行一次put的时间", Date.now() - a);
+        // console.log("执行一次put的时间", Date.now() - a);
     }
 
     public GetNode(nodePoolName: nodePoolEnum): cc.Node {
@@ -42,7 +42,8 @@ export default class EatingNodePool {
         if (pool.size() > 1) {
             return pool.get();
         }
-        return cc.instantiate(this.prefabs.get(nodePoolName));
+        pool.put(cc.instantiate(this.prefabs.get(nodePoolName)));
+        return pool.get();
     }
 
     public ClearPool() {

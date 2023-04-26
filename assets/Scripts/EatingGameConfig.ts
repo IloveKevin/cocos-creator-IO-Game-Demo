@@ -2,13 +2,14 @@ export default class EatingGameConfig {
     public static roleMoveSpeed = 300;
     public static boySpeed = 400;
     public static boyAcceleration = 1500;
-    public static maxEatingTime = 0.1;
+    public static maxEatingTime = 0.05;
     public static bigPlayerRoleCount = 2;
     public static equalsPlayerRoleCount = 5;
-    public static lessPlayerRoleCount = 10;
+    public static lessPlayerRoleCount = 5;
+    public static maxEnemyRole = 15;
     public static gameMaxBoy = 20;
     public static nodePoolInitCount = {
-        boy: 50,
+        boy: 20,
         role: 5,
         playerVisual: 20,
         enemyVisual: 20

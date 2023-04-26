@@ -9,6 +9,7 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class RoleBase extends cc.Component {
+    levelLabel: cc.Label = null;
     protected roleLevel: number = 1;
     public visualPrefab: cc.Prefab = null;
     public Ai: boolean = true;
@@ -22,8 +23,23 @@ export default class RoleBase extends cc.Component {
     private eatingTime: number = 0;
     public speed: number = EatingGameConfig.roleMoveSpeed;
     public id: number;
+    public radius: number;
+    public beDeth: boolean = false;
+    public isDeth: boolean = false;
+    private dethTime: number = 0;
+
+    public unuse() {
+        // console.log("放入节点池");
+    }
+
+    public reuse() {
+        // console.log("从节点池拿出");
+    }
 
     public Init(visualPrefab: cc.Prefab, level: number = 1, ai: boolean = true) {
+        this.isDeth = false
+        this.beDeth = false;
+        this.levelLabel = this.node.getChildByName("LevelLabel").getComponent(cc.Label);
         this.moveDir = cc.Vec2.ZERO;
         this.boyManager = new BoyManager(this);
         this.roleLevel = level;
@@ -36,14 +52,17 @@ export default class RoleBase extends cc.Component {
         this.node.getComponents(cc.CircleCollider).forEach((value) => {
             if (EatingGameConfig.ColliderTag.NEIYUAN == value.tag) value.radius = visual.height > visual.width ? visual.height : visual.width;
         });
-        let boyCount = 4 + level;
-        // if (!this.Ai) boyCount = 300;
+        // let boyCount = 4 + level;
+        let boyCount = 5;
+        if (!this.Ai) boyCount = 300;
+        let a = Date.now();
         for (let i = 0; i < boyCount; i++) {
             let boy = (EatingGame.Instance.GetBoy());
             boy.setParent(EatingGame.Instance.node);
             boy.setPosition(boy.parent.convertToNodeSpaceAR(this.node.parent.convertToWorldSpaceAR(this.node.getPosition())));
             this.boyManager.AddBoy(boy.getComponent(Boy));
         }
+        // console.log("创造所有儿子的时间", Date.now() - a);
     }
 
     public GetLevel() {
@@ -60,6 +79,7 @@ export default class RoleBase extends cc.Component {
     }
 
     public onCollisionEnter(other: cc.Collider, self: cc.Collider) {
+        let a = Date.now();
         if (EatingGameConfig.ColliderTag.WAIYUAN == self.tag) {
             switch (other.tag) {
                 case EatingGameConfig.ColliderTag.boy:
@@ -82,6 +102,7 @@ export default class RoleBase extends cc.Component {
     }
 
     public onCollisionExit(other: cc.Collider, self: cc.Collider) {
+        let a = Date.now();
         if (EatingGameConfig.ColliderTag.WAIYUAN == self.tag) {
             switch (other.tag) {
                 case EatingGameConfig.ColliderTag.boy:
@@ -104,8 +125,8 @@ export default class RoleBase extends cc.Component {
         }
         let pos = this.node.parent.convertToNodeSpaceAR(this.aiMovePos);
         let dir = pos.sub(this.node.getPosition()).normalize();
-        // this.node.setPosition(this.node.getPosition().add(dir.mul(dt * this.speed)));
-        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
+        this.node.setPosition(this.node.getPosition().add(dir.mul(dt * this.speed)));
+        // this.node.setPosition(this.node.getPosition().add(dir.mul(dt * 100)));
         this.moveDir = dir;
         if (this.node.getPosition().sub(pos).mag() <= 20) this.aiMovePos = cc.Vec2.ZERO;
     }
@@ -130,8 +151,11 @@ export default class RoleBase extends cc.Component {
                 if (this.eatingTime >= EatingGameConfig.maxEatingTime) {
                     roles.forEach((value) => {
                         let boy = value.GetBoyManager().GetBoy();
-                        if (boy) this.Eating(boy);
-                        else value.RoleDeath();
+                        if (boy) {
+                            console.log("执行吃角色", EatingGame.Instance.dangqiandt, boy.GetRole(), this.id, roles.length);
+                            this.Eating(boy);
+                        }
+                        else value.Death();
                     })
                 }
                 return;
@@ -145,6 +169,8 @@ export default class RoleBase extends cc.Component {
             let boy: Boy = this.BoyEating();
             if (boy) {
                 if (this.eatingTime >= EatingGameConfig.maxEatingTime) {
+                    console.log("执行吃子", EatingGame.Instance.dangqiandt, boy.GetRole(), this.id, this.node.getComponents(RoleBase).length);
+                    EatingGame.Instance.LogRoles();
                     this.Eating(boy);
                 }
                 return;
@@ -184,48 +210,63 @@ export default class RoleBase extends cc.Component {
         this.eatingTime = 0;
         if (boy.GetRole()) boy.GetRole().GetBoyManager().DeleteBoy(boy);
         if (this.Ai) {
+            let a = Date.now();
             EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.boy, boy.node);
+            console.log("执行PUT NODE耗时", Date.now() - a, EatingGame.Instance.dangqiandt, this.Ai);
         } else {
             this.boyManager.AddBoy(boy);
         }
     }
 
     public RoleDeath() {
-        //角色死亡
+        this.dethTime = 0;
+        // if (!EatingGame.Instance.cameraHolder.RoleInPlayerHorizons(this)) {
+        let boys = this.boyManager.GetBoys();
+        if (boys.length > 0) {
+            let a = Date.now();
+            EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.boy, boys[0].node);
+            console.log("将Boy放入节点池的时间", Date.now() - a, EatingGame.Instance.dangqiandt, this.Ai);
+            this.boyManager.DeleteBoy(boys[0]);
+            return;
+        } else {
+            let b = Date.now()
+            this.Death();
+            console.log("将Role放入节点池的时间", Date.now() - b, EatingGame.Instance.dangqiandt);
+        }
+        // }
+    }
+
+    public Death() {
+        this.isDeth = true;
         EatingGame.Instance.roleManager.DeleteRole(this);
-        this.boyManager.ClearBoy();
-        let a = Date.now();
-        this.boysNode.children.forEach((value) => {
-            EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.boy, value);
-            // value.destroy();
-        })
-        console.log("角色死亡时销毁儿子时间", Date.now() - a);
         EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.role, this.node);
-        this.destroy();
-        console.log("角色死亡时销毁本身时间", Date.now() - a);
-        console.log("---------------");
-        // this.node.destroy();
     }
 
     private UpdateRadius(dt: number) {
         if (null == this.boyManager || undefined == this.boyManager) return;
         this.node.getComponents(cc.CircleCollider).forEach((value) => {
             if (EatingGameConfig.ColliderTag.WAIYUAN == value.tag) {
+                this.radius = this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1);
                 if (this.Ai) {
-                    value.radius = this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1);
+                    value.radius = this.radius;
                     return;
                 }
-                value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1), dt);
+                value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.radius, dt);
             }
         })
     }
 
     update(dt) {
-        if (this.Ai) this.AiMove(dt);
+        console.log("update当前执行帧数", EatingGame.Instance.dangqiandt, this.id);
         let a = Date.now();
+        if (this.Ai) this.AiMove(dt);
         this.UpdateEat(dt);
-        if (Date.now() - a > 100) console.log("角色处理eat的时间", Date.now() - a, this.eatingRole.length, this.eatingBoy.length);
+        if (dt > 0.1)
+            console.log("处理吃东西的时间", Date.now() - a, EatingGame.Instance.dangqiandt, "当前被吃的BOY长度", this.eatingBoy.length, "当前被吃的角色长度", this.eatingRole.length);
         this.UpdateRotation();
         this.UpdateRadius(dt);
+        this.levelLabel.string = "角色等级：" + this.id;
+        if (dt > 0.1)
+            console.log("rolebase update Time", Date.now() - a, EatingGame.Instance.dangqiandt);
     }
 }

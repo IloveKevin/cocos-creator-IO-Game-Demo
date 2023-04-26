@@ -15,6 +15,8 @@ export default class EatingGame extends cc.Component {
     rolePrefab: cc.Prefab = null;
     @property(cc.Prefab)
     boyPrefab: cc.Prefab = null;
+    @property(cc.Prefab)
+    boyVisualPrefab: cc.Prefab = null;
     @property([cc.Prefab])
     visualPrefabs: cc.Prefab[] = [];
     @property(cc.Node)
@@ -24,6 +26,12 @@ export default class EatingGame extends cc.Component {
     private boyId: number = 0;
     private roleId: number = 0;
     public eatingNodePool: EatingNodePool;
+
+    private bigPlayerRoleOne = [];
+    private bigPlayerRole = [];
+    private lessPlayerRoleCount = [];
+    public destroyedTime = 0;
+    public dangqiandt: number = 0;
 
     onLoad() {
         EatingGame.Instance = this;
@@ -43,7 +51,7 @@ export default class EatingGame extends cc.Component {
         this.cameraHolder.player = this.player;
         this.player.Init(this.visualPrefabs[0], 1, false);
         this.roleManager.AddRole(this.player);
-        // this.CreatRole(20, 1);
+        // this.CreatRole(1, 1);
         // let level = 2;
         // for (let i = 0; i < 2; i++) {
         //     let role = this.GetRole();
@@ -57,8 +65,8 @@ export default class EatingGame extends cc.Component {
 
     private InitNodePool() {
         this.eatingNodePool = new EatingNodePool();
-        this.eatingNodePool.CreatNodePool(nodePoolEnum.boy, this.boyPrefab);
-        this.eatingNodePool.CreatNodePool(nodePoolEnum.role, this.rolePrefab);
+        this.eatingNodePool.CreatNodePool(nodePoolEnum.boy, this.boyPrefab, "Boy");
+        this.eatingNodePool.CreatNodePool(nodePoolEnum.role, this.rolePrefab, "RoleBase");
         this.eatingNodePool.CreatNodePool(nodePoolEnum.playerVisual, this.visualPrefabs[0]);
         this.eatingNodePool.CreatNodePool(nodePoolEnum.enemyVisual, this.visualPrefabs[1]);
         this.eatingNodePool.Init();
@@ -95,9 +103,10 @@ export default class EatingGame extends cc.Component {
         let newRole = this.eatingNodePool.GetNode(nodePoolEnum.role);
         let role;
         if (isPlayer) {
+            newRole.getComponent("RoleBase").destroy();
             role = newRole.addComponent("Player");
         } else {
-            role = newRole.addComponent("RoleBase");
+            role = newRole.getComponent("RoleBase");
         }
         role.id = this.roleId;
         this.roleId++;
@@ -107,62 +116,96 @@ export default class EatingGame extends cc.Component {
     private CreatRole(count: number, level: number) {
         if (count <= 0) return;
         for (let i = 0; i < count; i++) {
+            let a = Date.now();
+            if (this.roleManager.GetRoles().length - 1 >= EatingGameConfig.maxEnemyRole) return;
             let newRole = this.GetRole();
             let role = newRole.getComponent("RoleBase");
             newRole.setParent(this.node);
             let pos = this.GetInWallPos();
-            for (; this.cameraHolder.InPlayerHorizons(pos);) {
-                pos = this.GetInWallPos();
-            }
             newRole.setPosition(newRole.parent.convertToNodeSpaceAR(pos));
-            // newRole.setPosition(0, 0);
+            role.radius = 60 + 30 * (level - 1);
+            for (; this.cameraHolder.RoleInPlayerHorizons(role);) {
+                pos = this.GetInWallPos();
+                newRole.setPosition(newRole.parent.convertToNodeSpaceAR(pos));
+                role.radius = 60 + 30 * (level - 1);
+            }
             role.Init(this.visualPrefabs[1], level);
             this.roleManager.AddRole(role);
+            console.log("创建role的时间", Date.now() - a);
         }
     }
 
-    private UpdateRole() {
+    private UpdateRole(dt: number) {
         if (!this.player || !cc.isValid(this.player)) return;
         let roles = this.roleManager.GetRoles();
-        let bigPlayerRole = [];
+        this.bigPlayerRoleOne = [];
+        this.bigPlayerRole = [];
         let equalsPlayerRoleCount: number = 0;
-        let lessPlayerRoleCount = [];
+        this.lessPlayerRoleCount = [];
         roles.forEach((value) => {
-            if ((value.GetLevel() - this.player.GetLevel()) > 1 && !this.cameraHolder.InPlayerHorizons(value.node.parent.convertToWorldSpaceAR(value.node.getPosition()))) {
-                value.RoleDeath();
+            if ((value.GetLevel() - this.player.GetLevel()) > 1 && !this.cameraHolder.RoleInPlayerHorizons(value)) {
+                // value.RoleDeath();
+                this.bigPlayerRole.push(value);
             }
             else if (1 == (value.GetLevel() - this.player.GetLevel())) {
-                bigPlayerRole.push(value);
+                this.bigPlayerRoleOne.push(value);
             }
             else if (0 == (value.GetLevel() - this.player.GetLevel()) && value != this.player) {
                 equalsPlayerRoleCount++;
             }
             else if (0 > (value.GetLevel() - this.player.GetLevel())) {
-                lessPlayerRoleCount.push(value);
+                this.lessPlayerRoleCount.push(value);
             }
         })
-        for (let i = 0; i < bigPlayerRole.length; i++) {
-            if (bigPlayerRole.length > EatingGameConfig.bigPlayerRoleCount && this.cameraHolder.InPlayerHorizons(bigPlayerRole[i].node.parent.convertToWorldSpaceAR(bigPlayerRole[i].node.getPosition()))) {
-                bigPlayerRole[i].RoleDeath();
-            }
-        }
-        for (let i = 0; i < lessPlayerRoleCount.length; i++) {
-            if (lessPlayerRoleCount.length > EatingGameConfig.lessPlayerRoleCount && this.cameraHolder.InPlayerHorizons(lessPlayerRoleCount[i].node.parent.convertToWorldSpaceAR(lessPlayerRoleCount[i].node.getPosition()))) {
-                lessPlayerRoleCount[i].RoleDeath();
-            }
-        }
+        this.destroyedTime += dt;
+        this.DestroyedRole();
         let playerLevel: number = this.player.GetLevel();
-        this.CreatRole(EatingGameConfig.bigPlayerRoleCount - bigPlayerRole.length, playerLevel + 1)
+        this.CreatRole(EatingGameConfig.bigPlayerRoleCount - this.bigPlayerRoleOne.length, playerLevel + 1)
         this.CreatRole(EatingGameConfig.equalsPlayerRoleCount - equalsPlayerRoleCount, playerLevel);
     }
 
+    private DestroyedRole() {
+        this.destroyedTime = 0;
+        for (let i = 0; i < this.bigPlayerRole.length; i++) {
+            if (!this.cameraHolder.RoleInPlayerHorizons(this.bigPlayerRole[i]) && this.bigPlayerRole[i].beDeth == false) {
+                console.log("销毁比我大很多的", this.dangqiandt);
+                this.bigPlayerRole[i].RoleDeath();
+                return;
+            }
+        }
+        for (let i = 0; i < this.bigPlayerRoleOne.length; i++) {
+            if (this.bigPlayerRoleOne.length > EatingGameConfig.bigPlayerRoleCount && !this.cameraHolder.RoleInPlayerHorizons(this.bigPlayerRoleOne[i]) && this.bigPlayerRoleOne[i].beDeth == false) {
+                console.log("销毁比我大的", this.dangqiandt);
+                this.bigPlayerRoleOne[i].RoleDeath();
+                return;
+            }
+        }
+        for (let i = 0; i < this.lessPlayerRoleCount.length; i++) {
+            if (this.lessPlayerRoleCount.length > EatingGameConfig.lessPlayerRoleCount && !this.cameraHolder.RoleInPlayerHorizons(this.lessPlayerRoleCount[i]) && this.lessPlayerRoleCount[i].beDeth == false) {
+                // console.log("销毁比我小的", this.player.GetLevel());
+                this.lessPlayerRoleCount[i].RoleDeath();
+                return;
+            }
+        }
+    }
+
+    public LogRoles() {
+        let s = "";
+        this.roleManager.GetRoles().forEach((value) => {
+            let a = "," + value.id;
+            s += a;
+        })
+        console.log(s);
+    }
+
     protected update(dt: number): void {
-        console.log(this.roleManager.GetRoles().length);
+        this.dangqiandt++
+        if (dt > 0.1) console.error("当前帧数", this.dangqiandt, "帧间隔", dt, "--------------------------------------------------");
+        // console.log(this.roleManager.GetRoles().length);
         if (this.boyCount < EatingGameConfig.gameMaxBoy) this.CreatBoy();
-        let a = Date.now()
         if (null != this.roleManager) this.roleManager.UpdateRoleEat();
-        if (Date.now() - a > 100) console.log("处理eat逻辑的时间", Date.now() - a > 100);
-        this.UpdateRole();
-        // if (this.roleManager.GetRoles().length == 1) this.CreatRole(10, 1);
+        if (this.dangqiandt > 200) this.UpdateRole(dt);
+        // this.UpdateRole(dt);
+        // if (this.roleManager.GetRoles().length == 1) this.CreatRole(1, 2);
     }
 }

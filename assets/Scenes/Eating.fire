@@ -171,7 +171,7 @@
       "array": [
         0,
         0,
-        503.4584558313098,
+        503.15314149132786,
         0,
         0,
         0,
@@ -1025,6 +1025,7 @@
     "boyPrefab": {
       "__uuid__": "b3bf4e23-01a2-471f-8047-a8558f89146c"
     },
+    "boyVisualPrefab": null,
     "visualPrefabs": [
       {
         "__uuid__": "f21a7a5c-9f3b-4a69-b2aa-56a7ad7e1fbb"

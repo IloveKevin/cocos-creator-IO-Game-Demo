@@ -1,12 +1,15 @@
 import RoleBase from "./Base/RoleBase";
 import EatingGame from "./EatingGame";
 import EatingGameConfig from "./EatingGameConfig";
+import { nodePoolEnum } from "./EatingNodePool";
 import EatingUtil from "./EatingUtil";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Boy extends cc.Component {
+    @property(cc.Prefab)
+    boyVisualPrefab: cc.Prefab = null;
     private role: RoleBase;
     //移动方向
     private moveDir: cc.Vec2 = cc.v2(1, 0);
@@ -20,8 +23,26 @@ export default class Boy extends cc.Component {
     public inGame: boolean = false;
     public id: number;
 
-    protected onLoad(): void {
+    public unuse() {
+        this.node.getChildByName("Visual").children.forEach((value) => {
+            value.destroy();
+        })
+    }
+
+    public reuse() {
         this.rb = this.node.getComponent(cc.RigidBody);
+        let boyVisualNode = cc.instantiate(this.boyVisualPrefab);
+        boyVisualNode.setParent(this.node.getChildByName("Visual"));
+        boyVisualNode.setPosition(0, 0);
+        this.role = null;
+        this.moveDir = cc.Vec2.UP;
+        this.aiMovePos = cc.Vec2.ZERO;
+        this.maxSpeed = EatingGameConfig.boySpeed;
+        this.moveSpeed = cc.Vec2.ZERO;
+        this.accelerationDir = cc.Vec2.ZERO;
+        this.acceleration = EatingGameConfig.boyAcceleration;
+        this.targetPos = null;
+        this.rb.linearVelocity = cc.Vec2.ZERO;
     }
 
     public ChangeTarget(role: RoleBase, targetPos: cc.Vec2) {
@@ -87,6 +108,7 @@ export default class Boy extends cc.Component {
         if (this.moveDir.x < 0) {
             rotation = -rotation;
         }
-        this.node.angle = EatingUtil.Lerp(this.node.angle, -rotation, dt * 10);
+        // this.node.angle = EatingUtil.Lerp(this.node.angle, -rotation, dt * 10);
+        this.node.angle = -rotation;
     }
 }

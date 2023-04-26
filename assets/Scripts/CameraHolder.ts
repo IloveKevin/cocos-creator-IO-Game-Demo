@@ -18,12 +18,24 @@ export default class CameraHolder extends cc.Component {
 
     public InPlayerHorizons(worldPos): boolean {
         let camera = this.cameras[0];
-        let HorizonsSize = cc.v2(cc.winSize.width * 2, cc.winSize.height * 2).mul(camera.getComponent(cc.Camera).zoomRatio);
+        let HorizonsSize = cc.v2(cc.winSize.width, cc.winSize.height).mul(1 / camera.getComponent(cc.Camera).zoomRatio);
+        console.log(HorizonsSize.x, HorizonsSize.y);
         if (worldPos.x < ((camera.parent.convertToWorldSpaceAR(camera.getPosition()).x) - HorizonsSize.x / 2) ||
             worldPos.x > ((camera.parent.convertToWorldSpaceAR(camera.getPosition()).x) + HorizonsSize.x / 2) ||
             worldPos.y > ((camera.parent.convertToWorldSpaceAR(camera.getPosition()).y) + HorizonsSize.y / 2) ||
             worldPos.y < ((camera.parent.convertToWorldSpaceAR(camera.getPosition()).y) - HorizonsSize.y / 2)) return false;
         return true;
+    }
+
+    public RoleInPlayerHorizons(role): boolean {
+        let camera = this.cameras[0];
+        let cameraWorldPos: cc.Vec2 = camera.parent.convertToWorldSpaceAR(camera.getPosition());
+        let roleWorldPos: cc.Vec2 = role.node.parent.convertToWorldSpaceAR(role.node.getPosition());
+        let HorizonsSize = cc.v2(cc.winSize.width, cc.winSize.height).mul(1 / camera.getComponent(cc.Camera).zoomRatio);
+        let cameraRect: cc.Rect = cc.Rect.fromMinMax(cc.v2(cameraWorldPos.x - HorizonsSize.x / 2, cameraWorldPos.y - HorizonsSize.y / 2), cc.v2(cameraWorldPos.x + HorizonsSize.x / 2, cameraWorldPos.y + HorizonsSize.y / 2));
+        let roleRect: cc.Rect = cc.Rect.fromMinMax(cc.v2(roleWorldPos.x - role.radius, roleWorldPos.y - role.radius), cc.v2(roleWorldPos.x + role.radius, roleWorldPos.y + role.radius))
+        if (cameraRect.intersects(roleRect)) return true;
+        return false;
     }
 
     public SetZoomRatio(level) {
