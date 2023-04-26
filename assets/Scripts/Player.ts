@@ -55,8 +55,8 @@ export default class Player extends RoleBase {
         this.node.y += this.moveDir.y * this.speed * dt;
     }
 
-    update(dt) {
-        super.update(dt);
+    lateUpdate(dt) {
+        super.lateUpdate(dt);
         this.Move(dt);
         EatingGame.Instance.cameraHolder.SetZoomRatio(this.roleLevel);
     }

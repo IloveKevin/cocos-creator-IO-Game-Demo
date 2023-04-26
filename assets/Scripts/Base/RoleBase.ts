@@ -20,13 +20,12 @@ export default class RoleBase extends cc.Component {
     public beEatingRole: RoleBase = null;
     public eatingRole: RoleBase[] = [];
     public eatingBoy: Boy[] = [];
-    private eatingTime: number = 0;
+    public eatingTime: number = 0;
     public speed: number = EatingGameConfig.roleMoveSpeed;
     public id: number;
     public radius: number;
     public beDeth: boolean = false;
     public isDeth: boolean = false;
-    private dethTime: number = 0;
 
     public unuse() {
         // console.log("放入节点池");
@@ -54,7 +53,7 @@ export default class RoleBase extends cc.Component {
         });
         // let boyCount = 4 + level;
         let boyCount = 5;
-        if (!this.Ai) boyCount = 300;
+        // if (!this.Ai) boyCount = 300;
         let a = Date.now();
         for (let i = 0; i < boyCount; i++) {
             let boy = (EatingGame.Instance.GetBoy());
@@ -152,10 +151,14 @@ export default class RoleBase extends cc.Component {
                     roles.forEach((value) => {
                         let boy = value.GetBoyManager().GetBoy();
                         if (boy) {
-                            console.log("执行吃角色", EatingGame.Instance.dangqiandt, boy.GetRole(), this.id, roles.length);
+                            // console.log("执行吃角色", EatingGame.Instance.dangqiandt, boy.GetRole(), this.id, roles.length);
                             this.Eating(boy);
                         }
-                        else value.Death();
+                        else if (value.Ai) { value.Death(); }
+                        else {
+                            console.log("死亡");
+                            value.node.destroy();
+                        }
                     })
                 }
                 return;
@@ -169,8 +172,8 @@ export default class RoleBase extends cc.Component {
             let boy: Boy = this.BoyEating();
             if (boy) {
                 if (this.eatingTime >= EatingGameConfig.maxEatingTime) {
-                    console.log("执行吃子", EatingGame.Instance.dangqiandt, boy.GetRole(), this.id, this.node.getComponents(RoleBase).length);
-                    EatingGame.Instance.LogRoles();
+                    // console.log("执行吃子", EatingGame.Instance.dangqiandt, boy.GetRole(), this.id, this);
+                    // EatingGame.Instance.LogRoles();
                     this.Eating(boy);
                 }
                 return;
@@ -212,28 +215,27 @@ export default class RoleBase extends cc.Component {
         if (this.Ai) {
             let a = Date.now();
             EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.boy, boy.node);
-            console.log("执行PUT NODE耗时", Date.now() - a, EatingGame.Instance.dangqiandt, this.Ai);
+            // console.log("执行PUT NODE耗时", Date.now() - a, EatingGame.Instance.dangqiandt, this.Ai);
         } else {
             this.boyManager.AddBoy(boy);
         }
     }
 
     public RoleDeath() {
-        this.dethTime = 0;
-        // if (!EatingGame.Instance.cameraHolder.RoleInPlayerHorizons(this)) {
-        let boys = this.boyManager.GetBoys();
-        if (boys.length > 0) {
-            let a = Date.now();
-            EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.boy, boys[0].node);
-            console.log("将Boy放入节点池的时间", Date.now() - a, EatingGame.Instance.dangqiandt, this.Ai);
-            this.boyManager.DeleteBoy(boys[0]);
-            return;
-        } else {
-            let b = Date.now()
-            this.Death();
-            console.log("将Role放入节点池的时间", Date.now() - b, EatingGame.Instance.dangqiandt);
+        if (!EatingGame.Instance.cameraHolder.RoleInPlayerHorizons(this) && null == EatingGame.Instance.player.beEatingRole) {
+            let boys = this.boyManager.GetBoys();
+            if (boys.length > 0) {
+                let a = Date.now();
+                EatingGame.Instance.eatingNodePool.PutNode(nodePoolEnum.boy, boys[0].node);
+                // console.log("将Boy放入节点池的时间", Date.now() - a, EatingGame.Instance.dangqiandt, this.Ai);
+                this.boyManager.DeleteBoy(boys[0]);
+                return;
+            } else {
+                let b = Date.now()
+                this.Death();
+                // console.log("将Role放入节点池的时间", Date.now() - b, EatingGame.Instance.dangqiandt);
+            }
         }
-        // }
     }
 
     public Death() {
@@ -256,17 +258,16 @@ export default class RoleBase extends cc.Component {
         })
     }
 
-    update(dt) {
-        console.log("update当前执行帧数", EatingGame.Instance.dangqiandt, this.id);
+    lateUpdate(dt) {
         let a = Date.now();
         if (this.Ai) this.AiMove(dt);
         this.UpdateEat(dt);
-        if (dt > 0.1)
-            console.log("处理吃东西的时间", Date.now() - a, EatingGame.Instance.dangqiandt, "当前被吃的BOY长度", this.eatingBoy.length, "当前被吃的角色长度", this.eatingRole.length);
+        // if (dt > 0.033333)
+        //     console.log("处理吃东西的时间", Date.now() - a, EatingGame.Instance.dangqiandt, "当前被吃的BOY长度", this.eatingBoy.length, "当前被吃的角色长度", this.eatingRole.length);
         this.UpdateRotation();
         this.UpdateRadius(dt);
-        this.levelLabel.string = "角色等级：" + this.id;
-        if (dt > 0.1)
-            console.log("rolebase update Time", Date.now() - a, EatingGame.Instance.dangqiandt);
+        this.levelLabel.string = "角色等级：" + this.roleLevel;
+        // if (dt > 0.033333)
+        //     console.log("rolebase update Time", Date.now() - a, EatingGame.Instance.dangqiandt);
     }
 }

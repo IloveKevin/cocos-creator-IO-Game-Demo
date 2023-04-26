@@ -15,8 +15,6 @@ export default class EatingGame extends cc.Component {
     rolePrefab: cc.Prefab = null;
     @property(cc.Prefab)
     boyPrefab: cc.Prefab = null;
-    @property(cc.Prefab)
-    boyVisualPrefab: cc.Prefab = null;
     @property([cc.Prefab])
     visualPrefabs: cc.Prefab[] = [];
     @property(cc.Node)
@@ -129,9 +127,11 @@ export default class EatingGame extends cc.Component {
                 newRole.setPosition(newRole.parent.convertToNodeSpaceAR(pos));
                 role.radius = 60 + 30 * (level - 1);
             }
+            // pos = cc.v2(0, 0);
+            // newRole.setPosition(pos);
             role.Init(this.visualPrefabs[1], level);
             this.roleManager.AddRole(role);
-            console.log("创建role的时间", Date.now() - a);
+            // console.log("创建role的时间", Date.now() - a);
         }
     }
 
@@ -143,7 +143,7 @@ export default class EatingGame extends cc.Component {
         let equalsPlayerRoleCount: number = 0;
         this.lessPlayerRoleCount = [];
         roles.forEach((value) => {
-            if ((value.GetLevel() - this.player.GetLevel()) > 1 && !this.cameraHolder.RoleInPlayerHorizons(value)) {
+            if ((value.GetLevel() - this.player.GetLevel()) > 1) {
                 // value.RoleDeath();
                 this.bigPlayerRole.push(value);
             }
@@ -168,20 +168,20 @@ export default class EatingGame extends cc.Component {
         this.destroyedTime = 0;
         for (let i = 0; i < this.bigPlayerRole.length; i++) {
             if (!this.cameraHolder.RoleInPlayerHorizons(this.bigPlayerRole[i]) && this.bigPlayerRole[i].beDeth == false) {
-                console.log("销毁比我大很多的", this.dangqiandt);
+                // console.log("销毁比我大很多的", this.dangqiandt);
                 this.bigPlayerRole[i].RoleDeath();
                 return;
             }
         }
         for (let i = 0; i < this.bigPlayerRoleOne.length; i++) {
-            if (this.bigPlayerRoleOne.length > EatingGameConfig.bigPlayerRoleCount && !this.cameraHolder.RoleInPlayerHorizons(this.bigPlayerRoleOne[i]) && this.bigPlayerRoleOne[i].beDeth == false) {
-                console.log("销毁比我大的", this.dangqiandt);
+            if (this.bigPlayerRoleOne.length > EatingGameConfig.bigPlayerRoleCount && this.bigPlayerRoleOne[i].beDeth == false) {
+                // console.log("销毁比我大的", this.dangqiandt);
                 this.bigPlayerRoleOne[i].RoleDeath();
                 return;
             }
         }
         for (let i = 0; i < this.lessPlayerRoleCount.length; i++) {
-            if (this.lessPlayerRoleCount.length > EatingGameConfig.lessPlayerRoleCount && !this.cameraHolder.RoleInPlayerHorizons(this.lessPlayerRoleCount[i]) && this.lessPlayerRoleCount[i].beDeth == false) {
+            if (this.lessPlayerRoleCount.length > EatingGameConfig.lessPlayerRoleCount && this.lessPlayerRoleCount[i].beDeth == false) {
                 // console.log("销毁比我小的", this.player.GetLevel());
                 this.lessPlayerRoleCount[i].RoleDeath();
                 return;
@@ -200,8 +200,8 @@ export default class EatingGame extends cc.Component {
 
     protected update(dt: number): void {
         this.dangqiandt++
-        if (dt > 0.1) console.error("当前帧数", this.dangqiandt, "帧间隔", dt, "--------------------------------------------------");
-        // console.log(this.roleManager.GetRoles().length);
+        if (dt > 0.05) console.error("当前帧数", this.dangqiandt, "帧间隔", dt, "--------------------------------------------------");
+        // console.log("当前有多少角色", this.roleManager.GetRoles().length);
         if (this.boyCount < EatingGameConfig.gameMaxBoy) this.CreatBoy();
         if (null != this.roleManager) this.roleManager.UpdateRoleEat();
         if (this.dangqiandt > 200) this.UpdateRole(dt);
