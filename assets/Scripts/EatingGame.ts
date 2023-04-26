@@ -131,7 +131,7 @@ export default class EatingGame extends cc.Component {
             // newRole.setPosition(pos);
             role.Init(this.visualPrefabs[1], level);
             this.roleManager.AddRole(role);
-            // console.log("创建role的时间", Date.now() - a);
+            console.log("创建role的时间", Date.now() - a);
         }
     }
 
