@@ -23,6 +23,8 @@ export default class EatingGame extends cc.Component {
     wallNode: cc.Node = null;
     @property(EatingGameSounds)
     public eatingGameSounds: EatingGameSounds = null;
+    @property(cc.Prefab)
+    addPrefab: cc.Prefab = null;
     public boyCount = 0;
     public player: Player;
     public roleManager: RoleManager;
@@ -61,6 +63,7 @@ export default class EatingGame extends cc.Component {
         this.roleManager = new RoleManager();
         this.InitNodePool();
         let newPlayer = this.GetRole(true);
+        newPlayer.zIndex = 10;
         newPlayer.setParent(this.node);
         this.player = newPlayer.getComponent(Player);
         this.cameraHolder.player = this.player;
