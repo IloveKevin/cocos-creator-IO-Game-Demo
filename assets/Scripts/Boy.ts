@@ -20,11 +20,16 @@ export default class Boy extends cc.Component {
     private rb: cc.RigidBody;
     public inGame: boolean = false;
     public id: number;
+    public game: EatingGame;
 
     public unuse() {
         this.node.getChildByName("Visual").children.forEach((value) => {
             value.destroy();
         })
+    }
+
+    Init(game: EatingGame) {
+        this.game = game;
     }
 
     public reuse() {
@@ -84,7 +89,7 @@ export default class Boy extends cc.Component {
     private AiMove(dt) {
         if (this.aiMovePos.equals(cc.Vec2.ZERO)) {
             this.aiMovePos = cc.v2(Math.random() - 0.5, Math.random() - 0.5).normalize().mul(Math.random() * 50 + 50);
-            while (!EatingGame.Instance.InWall(this.aiMovePos)) {
+            while (!this.game.InWall(this.aiMovePos)) {
                 this.aiMovePos = cc.v2(Math.random() - 0.5, Math.random() - 0.5).normalize().mul(Math.random() * 50 + 50);
             }
         }

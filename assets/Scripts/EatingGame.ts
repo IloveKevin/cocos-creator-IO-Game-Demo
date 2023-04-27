@@ -1,13 +1,15 @@
+import RoleBase from "./Base/RoleBase";
+import Boy from "./Boy";
 import CameraHolder from "./CameraHolder";
 import EatingGameConfig from "./EatingGameConfig";
 import EatingNodePool, { nodePoolEnum } from "./EatingNodePool";
+import Player from "./Player";
 import RoleManager from "./RoleManager";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class EatingGame extends cc.Component {
-    public static Instance: EatingGame;
     public boyCount = 0;
     @property(CameraHolder)
     cameraHolder: CameraHolder = null;
@@ -19,20 +21,19 @@ export default class EatingGame extends cc.Component {
     visualPrefabs: cc.Prefab[] = [];
     @property(cc.Node)
     wallNode: cc.Node = null;
-    public player;
+    public player: Player;
     public roleManager: RoleManager;
     private boyId: number = 0;
     private roleId: number = 0;
     public eatingNodePool: EatingNodePool;
 
-    private bigPlayerRoleOne = [];
-    private bigPlayerRole = [];
-    private lessPlayerRoleCount = [];
+    private bigPlayerRoleOne: RoleBase[] = [];
+    private bigPlayerRole: RoleBase[] = [];
+    private lessPlayerRoleCount: RoleBase[] = [];
     public destroyedTime = 0;
     public dangqiandt: number = 0;
 
     onLoad() {
-        EatingGame.Instance = this;
         this.roleManager = new RoleManager();
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
@@ -45,9 +46,9 @@ export default class EatingGame extends cc.Component {
     protected start(): void {
         let newPlayer = this.GetRole(true);
         newPlayer.setParent(this.node);
-        this.player = newPlayer.getComponent("Player");
+        this.player = newPlayer.getComponent(Player);
         this.cameraHolder.player = this.player;
-        this.player.Init(this.visualPrefabs[0], 1, false);
+        this.player.Init(this.visualPrefabs[0], this, 1, false);
         this.roleManager.AddRole(this.player);
         // this.CreatRole(1, 1);
         // let level = 2;
@@ -82,7 +83,8 @@ export default class EatingGame extends cc.Component {
         this.boyCount++;
         let pos = this.GetInWallPos();
         let newBoy = this.GetBoy();
-        let boy = newBoy.getComponent("Boy");
+        let boy = newBoy.getComponent(Boy);
+        boy.Init(this);
         boy.inGame = true;
         newBoy.setParent(this.node);
         newBoy.setPosition(this.node.convertToNodeSpaceAR(pos));
@@ -90,7 +92,7 @@ export default class EatingGame extends cc.Component {
 
     public GetBoy() {
         let newBoy = this.eatingNodePool.GetNode(nodePoolEnum.boy);
-        let boy = newBoy.getComponent("Boy");
+        let boy = newBoy.getComponent(Boy);
         boy.ChangeTarget(null, cc.v2(0, 0));
         boy.id = this.boyId;
         this.boyId++;
@@ -101,10 +103,10 @@ export default class EatingGame extends cc.Component {
         let newRole = this.eatingNodePool.GetNode(nodePoolEnum.role);
         let role;
         if (isPlayer) {
-            newRole.getComponent("RoleBase").destroy();
-            role = newRole.addComponent("Player");
+            newRole.getComponent(RoleBase).destroy();
+            role = newRole.addComponent(Player);
         } else {
-            role = newRole.getComponent("RoleBase");
+            role = newRole.getComponent(RoleBase);
         }
         role.id = this.roleId;
         this.roleId++;
@@ -117,7 +119,7 @@ export default class EatingGame extends cc.Component {
             let a = Date.now();
             if (this.roleManager.GetRoles().length - 1 >= EatingGameConfig.maxEnemyRole) return;
             let newRole = this.GetRole();
-            let role = newRole.getComponent("RoleBase");
+            let role = newRole.getComponent(RoleBase);
             newRole.setParent(this.node);
             let pos = this.GetInWallPos();
             newRole.setPosition(newRole.parent.convertToNodeSpaceAR(pos));
@@ -129,7 +131,7 @@ export default class EatingGame extends cc.Component {
             }
             // pos = cc.v2(0, 0);
             // newRole.setPosition(pos);
-            role.Init(this.visualPrefabs[1], level);
+            role.Init(this.visualPrefabs[1], this, level);
             this.roleManager.AddRole(role);
             console.log("创建role的时间", Date.now() - a);
         }

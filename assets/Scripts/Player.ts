@@ -58,6 +58,6 @@ export default class Player extends RoleBase {
     lateUpdate(dt) {
         super.lateUpdate(dt);
         this.Move(dt);
-        EatingGame.Instance.cameraHolder.SetZoomRatio(this.roleLevel);
+        this.game.cameraHolder.SetZoomRatio(this.roleLevel);
     }
 }
