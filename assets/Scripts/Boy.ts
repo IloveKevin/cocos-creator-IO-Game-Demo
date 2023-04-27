@@ -18,6 +18,7 @@ export default class Boy extends cc.Component {
     private accelerationDir: cc.Vec2 = cc.Vec2.ZERO;
     private acceleration: number = EatingGameConfig.boyAcceleration;
     public targetPos: cc.Vec2 = null;
+    private visualNode: cc.Node;
     private rb: cc.RigidBody;
     public inGame: boolean = false;
     public id: number;
@@ -31,6 +32,10 @@ export default class Boy extends cc.Component {
 
     Init(game: EatingGame) {
         this.game = game;
+    }
+
+    protected onLoad(): void {
+        this.visualNode = this.node.getChildByName("Visual");
     }
 
     public reuse() {
@@ -118,6 +123,6 @@ export default class Boy extends cc.Component {
             rotation = -rotation;
         }
         // this.node.angle = EatingUtil.Lerp(this.node.angle, -rotation, dt * 10);
-        this.node.angle = -rotation;
+        this.visualNode.angle = -rotation;
     }
 }
