@@ -57,15 +57,15 @@ export default class RoleBase extends cc.Component {
         let boyCount = 5;
         if (!this.Ai) boyCount = 300;
         let a = Date.now();
-        // if (this.Ai)
-        for (let i = 0; i < boyCount; i++) {
-            let newBoy = (this.game.GetBoy());
-            newBoy.setParent(this.game.node);
-            newBoy.setPosition(newBoy.parent.convertToNodeSpaceAR(this.node.parent.convertToWorldSpaceAR(this.node.getPosition())));
-            let boy: Boy = newBoy.getComponent(Boy);
-            boy.Init(this.game);
-            this.boyManager.AddBoy(boy);
-        }
+        if (this.Ai)
+            for (let i = 0; i < boyCount; i++) {
+                let newBoy = (this.game.GetBoy());
+                newBoy.setParent(this.game.node);
+                newBoy.setPosition(newBoy.parent.convertToNodeSpaceAR(this.node.parent.convertToWorldSpaceAR(this.node.getPosition())));
+                let boy: Boy = newBoy.getComponent(Boy);
+                boy.Init(this.game);
+                this.boyManager.AddBoy(boy);
+            }
         // console.log("创造所有儿子的时间", Date.now() - a);
     }
 
