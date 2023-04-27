@@ -55,7 +55,7 @@ export default class RoleBase extends cc.Component {
         });
         // let boyCount = 4 + level;
         let boyCount = 5;
-        if (!this.Ai) boyCount = 300;
+        if (!this.Ai) boyCount = 9;
         let a = Date.now();
         if (this.Ai)
             for (let i = 0; i < boyCount; i++) {
@@ -224,6 +224,7 @@ export default class RoleBase extends cc.Component {
         } else {
             this.boyManager.AddBoy(boy);
         }
+        this.game.eatingGameSounds.PlayEatingClip();
     }
 
     public RoleDeath() {

@@ -2,6 +2,7 @@ import RoleBase from "./Base/RoleBase";
 import Boy from "./Boy";
 import CameraHolder from "./CameraHolder";
 import EatingGameConfig from "./EatingGameConfig";
+import EatingGameSounds from "./EatingGameSounds";
 import EatingNodePool, { nodePoolEnum } from "./EatingNodePool";
 import Player from "./Player";
 import RoleManager from "./RoleManager";
@@ -20,6 +21,8 @@ export default class EatingGame extends cc.Component {
     visualPrefabs: cc.Prefab[] = [];
     @property(cc.Node)
     wallNode: cc.Node = null;
+    @property(EatingGameSounds)
+    public eatingGameSounds: EatingGameSounds = null;
     public boyCount = 0;
     public player: Player;
     public roleManager: RoleManager;
@@ -232,6 +235,7 @@ export default class EatingGame extends cc.Component {
     }
 
     protected update(dt: number): void {
+        if (this.player && this.player.GetLevel() > 10) this.GameOver();
         this.dangqiandt++
         if (dt > 0.05) console.error("当前帧数", this.dangqiandt, "帧间隔", dt, "--------------------------------------------------");
         // console.log("当前有多少角色", this.roleManager.GetRoles().length);
