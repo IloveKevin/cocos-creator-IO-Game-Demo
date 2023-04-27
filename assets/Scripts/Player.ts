@@ -59,5 +59,16 @@ export default class Player extends RoleBase {
         super.lateUpdate(dt);
         this.Move(dt);
         this.game.cameraHolder.SetZoomRatio(this.roleLevel);
+        this.border();
+    }
+
+    border() {
+        let playerPos = this.node.parent.convertToWorldSpaceAR(this.node.getPosition());
+        let wallPos = this.game.wallNode.parent.convertToWorldSpaceAR(this.game.wallNode.getPosition());
+        if (playerPos.x > wallPos.x + this.game.wallNode.width / 2) playerPos.x = wallPos.x + this.game.wallNode.width / 2;
+        if (playerPos.x < wallPos.x - this.game.wallNode.width / 2) playerPos.x = wallPos.x - this.game.wallNode.width / 2;
+        if (playerPos.y < wallPos.y - this.game.wallNode.height / 2) playerPos.y = wallPos.y - this.game.wallNode.height / 2;
+        if (playerPos.y > wallPos.y + this.game.wallNode.height / 2) playerPos.y = wallPos.y + this.game.wallNode.height / 2;
+        this.node.setPosition(this.node.parent.convertToNodeSpaceAR(playerPos));
     }
 }
