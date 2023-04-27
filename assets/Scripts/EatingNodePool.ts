@@ -47,7 +47,11 @@ export default class EatingNodePool {
     }
 
     public ClearPool() {
-        while (!this.nodePool.values().next().done)
-            this.nodePool.values().next().value.clear();
+        let values = this.nodePool.values();
+        let next = values.next();
+        while (!next.done) {
+            next.value.clear();
+            next = values.next();
+        }
     }
 }

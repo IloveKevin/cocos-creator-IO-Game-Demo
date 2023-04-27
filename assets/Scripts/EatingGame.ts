@@ -10,7 +10,6 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class EatingGame extends cc.Component {
-    public boyCount = 0;
     @property(CameraHolder)
     cameraHolder: CameraHolder = null;
     @property(cc.Prefab)
@@ -21,6 +20,7 @@ export default class EatingGame extends cc.Component {
     visualPrefabs: cc.Prefab[] = [];
     @property(cc.Node)
     wallNode: cc.Node = null;
+    public boyCount = 0;
     public player: Player;
     public roleManager: RoleManager;
     private boyId: number = 0;
@@ -29,28 +29,20 @@ export default class EatingGame extends cc.Component {
 
     private bigPlayerRoleOne: RoleBase[] = [];
     private bigPlayerRole: RoleBase[] = [];
-    private lessPlayerRoleCount: RoleBase[] = [];
+    private lessPlayerRoleOntCount: number = 0;
+    private lessPlayerRole: RoleBase[] = [];
     public destroyedTime = 0;
     public dangqiandt: number = 0;
 
     onLoad() {
-        this.roleManager = new RoleManager();
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
         manager.enabledDebugDraw = true;
         cc.director.getPhysicsManager().enabled = true;
-        let a = Date.now();
-        this.InitNodePool();
     }
 
     protected start(): void {
-        let newPlayer = this.GetRole(true);
-        newPlayer.setParent(this.node);
-        this.player = newPlayer.getComponent(Player);
-        this.cameraHolder.player = this.player;
-        this.player.Init(this.visualPrefabs[0], this, 1, false);
-        this.roleManager.AddRole(this.player);
-        // this.CreatRole(1, 1);
+        this.InitGame();
         // let level = 2;
         // for (let i = 0; i < 2; i++) {
         //     let role = this.GetRole();
@@ -60,6 +52,17 @@ export default class EatingGame extends cc.Component {
         //     RroleBase.Init(this.visualPrefabs[1], level);
         //     this.roleManager.AddRole(RroleBase);
         // }
+    }
+
+    public InitGame() {
+        this.roleManager = new RoleManager();
+        this.InitNodePool();
+        let newPlayer = this.GetRole(true);
+        newPlayer.setParent(this.node);
+        this.player = newPlayer.getComponent(Player);
+        this.cameraHolder.player = this.player;
+        this.player.Init(this.visualPrefabs[0], this, 1, false);
+        this.roleManager.AddRole(this.player);
     }
 
     private InitNodePool() {
@@ -99,6 +102,31 @@ export default class EatingGame extends cc.Component {
         return newBoy
     }
 
+    public GameOver() {
+        this.boyCount = 0;
+        this.node.children.forEach((value) => {
+            if ("Boy" == value.name) value.destroy();
+        })
+        this.player.node.destroy();
+        this.player = null;
+        this.roleManager.GetRoles().forEach((value) => {
+            value.GetBoyManager()
+            value.node.destroy();
+        })
+        this.roleManager.ClearRole();
+        this.boyId = 0;
+        this.roleId = 0;
+        this.eatingNodePool.ClearPool();
+        this.bigPlayerRoleOne = [];
+        this.bigPlayerRole = [];
+        this.lessPlayerRoleOntCount = 0;;
+        this.lessPlayerRole = [];
+        this.destroyedTime = 0;
+        setTimeout(() => {
+            this.InitGame();
+        }, 3000);
+    }
+
     public GetRole(isPlayer: boolean = false) {
         let newRole = this.eatingNodePool.GetNode(nodePoolEnum.role);
         let role;
@@ -133,7 +161,7 @@ export default class EatingGame extends cc.Component {
             // newRole.setPosition(pos);
             role.Init(this.visualPrefabs[1], this, level);
             this.roleManager.AddRole(role);
-            console.log("创建role的时间", Date.now() - a);
+            // console.log("创建role的时间", Date.now() - a);
         }
     }
 
@@ -143,7 +171,8 @@ export default class EatingGame extends cc.Component {
         this.bigPlayerRoleOne = [];
         this.bigPlayerRole = [];
         let equalsPlayerRoleCount: number = 0;
-        this.lessPlayerRoleCount = [];
+        this.lessPlayerRoleOntCount = 0;
+        this.lessPlayerRole = [];
         roles.forEach((value) => {
             if ((value.GetLevel() - this.player.GetLevel()) > 1) {
                 // value.RoleDeath();
@@ -156,7 +185,8 @@ export default class EatingGame extends cc.Component {
                 equalsPlayerRoleCount++;
             }
             else if (0 > (value.GetLevel() - this.player.GetLevel())) {
-                this.lessPlayerRoleCount.push(value);
+                if (-1 == (value.GetLevel() - this.player.GetLevel())) this.lessPlayerRoleOntCount++;
+                this.lessPlayerRole.push(value);
             }
         })
         this.destroyedTime += dt;
@@ -164,6 +194,7 @@ export default class EatingGame extends cc.Component {
         let playerLevel: number = this.player.GetLevel();
         this.CreatRole(EatingGameConfig.bigPlayerRoleCount - this.bigPlayerRoleOne.length, playerLevel + 1)
         this.CreatRole(EatingGameConfig.equalsPlayerRoleCount - equalsPlayerRoleCount, playerLevel);
+        if (playerLevel - 1 > 0) this.CreatRole(EatingGameConfig.lessPlayerRoleOnt - this.lessPlayerRoleOntCount, playerLevel - 1);
     }
 
     private DestroyedRole() {
@@ -182,10 +213,10 @@ export default class EatingGame extends cc.Component {
                 return;
             }
         }
-        for (let i = 0; i < this.lessPlayerRoleCount.length; i++) {
-            if (this.lessPlayerRoleCount.length > EatingGameConfig.lessPlayerRoleCount && this.lessPlayerRoleCount[i].beDeth == false) {
+        for (let i = 0; i < this.lessPlayerRole.length; i++) {
+            if (this.lessPlayerRole.length > EatingGameConfig.lessPlayerRoleCount && this.lessPlayerRole[i].beDeth == false) {
                 // console.log("销毁比我小的", this.player.GetLevel());
-                this.lessPlayerRoleCount[i].RoleDeath();
+                this.lessPlayerRole[i].RoleDeath();
                 return;
             }
         }

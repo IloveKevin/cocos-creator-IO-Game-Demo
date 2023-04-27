@@ -55,14 +55,17 @@ export default class RoleBase extends cc.Component {
         });
         // let boyCount = 4 + level;
         let boyCount = 5;
-        // if (!this.Ai) boyCount = 300;
+        if (!this.Ai) boyCount = 300;
         let a = Date.now();
-        for (let i = 0; i < boyCount; i++) {
-            let boy = (this.game.GetBoy());
-            boy.setParent(this.game.node);
-            boy.setPosition(boy.parent.convertToNodeSpaceAR(this.node.parent.convertToWorldSpaceAR(this.node.getPosition())));
-            this.boyManager.AddBoy(boy.getComponent(Boy));
-        }
+        if (this.Ai)
+            for (let i = 0; i < boyCount; i++) {
+                let newBoy = (this.game.GetBoy());
+                newBoy.setParent(this.game.node);
+                newBoy.setPosition(newBoy.parent.convertToNodeSpaceAR(this.node.parent.convertToWorldSpaceAR(this.node.getPosition())));
+                let boy: Boy = newBoy.getComponent(Boy);
+                boy.Init(this.game);
+                this.boyManager.AddBoy(boy);
+            }
         // console.log("创造所有儿子的时间", Date.now() - a);
     }
 
@@ -158,8 +161,7 @@ export default class RoleBase extends cc.Component {
                         }
                         else if (value.Ai) { value.Death(); }
                         else {
-                            console.log("死亡");
-                            value.node.destroy();
+                            this.game.GameOver();
                         }
                     })
                 }
@@ -216,7 +218,8 @@ export default class RoleBase extends cc.Component {
         if (boy.GetRole()) boy.GetRole().GetBoyManager().DeleteBoy(boy);
         if (this.Ai) {
             let a = Date.now();
-            this.game.eatingNodePool.PutNode(nodePoolEnum.boy, boy.node);
+            boy.BoyDead()
+            // this.game.eatingNodePool.PutNode(nodePoolEnum.boy, boy.node);
             // console.log("执行PUT NODE耗时", Date.now() - a, this.game.dangqiandt, this.Ai);
         } else {
             this.boyManager.AddBoy(boy);
@@ -228,9 +231,10 @@ export default class RoleBase extends cc.Component {
             let boys = this.boyManager.GetBoys();
             if (boys.length > 0) {
                 let a = Date.now();
-                this.game.eatingNodePool.PutNode(nodePoolEnum.boy, boys[0].node);
+                boys[0].BoyDead();
+                // this.game.eatingNodePool.PutNode(nodePoolEnum.boy, boys[0].node);
                 // console.log("将Boy放入节点池的时间", Date.now() - a, this.game.dangqiandt, this.Ai);
-                this.boyManager.DeleteBoy(boys[0]);
+                // this.boyManager.DeleteBoy(boys[0]);
                 return;
             } else {
                 let b = Date.now()

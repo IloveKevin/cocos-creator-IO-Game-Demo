@@ -1,6 +1,7 @@
 import RoleBase from "./Base/RoleBase";
 import EatingGame from "./EatingGame";
 import EatingGameConfig from "./EatingGameConfig";
+import { nodePoolEnum } from "./EatingNodePool";
 
 const { ccclass, property } = cc._decorator;
 
@@ -64,6 +65,11 @@ export default class Boy extends cc.Component {
     private UpdateAccelerationDir() {
         this.accelerationDir = this.node.parent.convertToNodeSpaceAR(this.role.node.parent.convertToWorldSpaceAR(this.role.node.getPosition().add(this.targetPos))).sub(this.node.getPosition());
         this.accelerationDir.normalizeSelf().mulSelf(this.acceleration);
+    }
+
+    public BoyDead() {
+        this.role.GetBoyManager().DeleteBoy(this);
+        this.game.eatingNodePool.PutNode(nodePoolEnum.boy, this.node);
     }
 
     private UpdateMoveSpeed(dt: number) {
