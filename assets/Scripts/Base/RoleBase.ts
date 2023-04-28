@@ -51,7 +51,7 @@ export default class RoleBase extends cc.Component {
         visual.setParent(this.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
         this.node.getComponents(cc.CircleCollider).forEach((value) => {
-            if (EatingGameConfig.ColliderTag.NEIYUAN == value.tag) value.radius = visual.height > visual.width ? visual.height : visual.width;
+            if (EatingGameConfig.ColliderTag.NEIYUAN == value.tag) value.radius = visual.height > visual.width ? visual.height / 2 : visual.width / 2;
         });
         // let boyCount = 4 + level;
         let boyCount = 5;
@@ -144,6 +144,7 @@ export default class RoleBase extends cc.Component {
             rotation = -rotation;
         }
         this.node.getChildByName("Visual").angle = -rotation;
+        this.node.getChildByName("Round").angle = -rotation;
     }
 
     protected UpdateEat(dt: number) {
@@ -262,11 +263,14 @@ export default class RoleBase extends cc.Component {
         this.node.getComponents(cc.CircleCollider).forEach((value) => {
             if (EatingGameConfig.ColliderTag.WAIYUAN == value.tag) {
                 this.radius = this.boyManager.firshRoundR + 10 + this.boyManager.roundR * (this.roleLevel - 1);
+                let scale = (this.radius * 2 + 50) / 710;
                 if (this.Ai) {
                     value.radius = this.radius;
+                    this.node.getChildByName("Round").scale = scale;
                     return;
                 }
                 value.radius = EatingUtil.Lerp(this.node.getComponent(cc.CircleCollider).radius, this.radius, dt);
+                this.node.getChildByName("Round").scale = EatingUtil.Lerp(this.node.getChildByName("Round").scale, scale, dt);
             }
         })
     }

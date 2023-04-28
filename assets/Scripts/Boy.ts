@@ -43,6 +43,8 @@ export default class Boy extends cc.Component {
         let boyVisualNode = cc.instantiate(this.boyVisualPrefab);
         boyVisualNode.setParent(this.node.getChildByName("Visual"));
         boyVisualNode.setPosition(0, 0);
+        let factor = 0.5 * this.node.getChildByName("Visual").scaleX;
+        this.node.getComponent(cc.CircleCollider).radius = boyVisualNode.height > boyVisualNode.width ? boyVisualNode.height * factor : boyVisualNode.width * factor;
         this.role = null;
         this.moveDir = cc.Vec2.UP;
         this.aiMovePos = cc.Vec2.ZERO;

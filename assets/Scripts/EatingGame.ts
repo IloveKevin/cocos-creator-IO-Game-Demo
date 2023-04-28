@@ -42,7 +42,7 @@ export default class EatingGame extends cc.Component {
     onLoad() {
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
-        manager.enabledDebugDraw = true;
+        // manager.enabledDebugDraw = true;
         cc.director.getPhysicsManager().enabled = true;
     }
 
@@ -101,6 +101,7 @@ export default class EatingGame extends cc.Component {
 
     public GetBoy() {
         let newBoy = this.eatingNodePool.GetNode(nodePoolEnum.boy);
+        newBoy.zIndex = 50;
         let boy = newBoy.getComponent(Boy);
         boy.ChangeTarget(null, cc.v2(0, 0));
         boy.id = this.boyId;

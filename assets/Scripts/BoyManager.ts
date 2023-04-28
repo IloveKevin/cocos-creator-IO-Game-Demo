@@ -35,8 +35,8 @@ export default class BoyManager {
         let visual = cc.instantiate(this.role.visualPrefab);
         visual.setParent(boy.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
-        boy.getComponent(cc.CircleCollider).radius = visual.height > visual.width ? visual.height : visual.width;
-        boy.getComponent(cc.CircleCollider).radius *= boy.node.getChildByName("Visual").scaleX;
+        let factor = 0.5 * boy.node.getChildByName("Visual").scaleX;
+        boy.node.getComponent(cc.CircleCollider).radius = visual.height > visual.width ? visual.height * factor : visual.width * factor;
         this.SortBoy();
     }
 
