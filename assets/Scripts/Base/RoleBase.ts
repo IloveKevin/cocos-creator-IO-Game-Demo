@@ -36,14 +36,55 @@ export default class RoleBase extends cc.Component {
         // console.log("从节点池拿出");
     }
 
+    public GetColor(level: number): string {
+        let color: string = "#FF6161";
+        switch (level) {
+            case 1:
+                color = "#FFB661"
+                break;
+            case 2:
+                color = "#FFFC61"
+                break;
+            case 3:
+                color = "#84FF61"
+                break;
+            case 4:
+                color = "#61FFB0"
+                break;
+            case 5:
+                color = "#61FFDC"
+                break;
+            case 6:
+                color = "#61C9FF"
+                break;
+            case 7:
+                color = "#616AFF"
+                break;
+            case 8:
+                color = "#AA61FF"
+                break;
+            case 9:
+                color = "#E961FF"
+                break;
+            case 10:
+                color = "#FF61A3"
+                break;
+        }
+        return color;
+    }
+
     public Init(game: EatingGame, level: number = 1, ai: boolean = true) {
         this.game = game;
         this.roleLevel = level;
         this.visualNodePool = this.game.eatingNodePool.GetVisualNodePool(this.roleLevel);
         this.Ai = ai;
+        let color: cc.Color = cc.Color.BLACK;
+        cc.Color.fromHEX(color, this.GetColor(this.roleLevel));
         if (!this.Ai) {
             this.visualNodePool = nodePoolEnum.playerVisual;
+            cc.Color.fromHEX(color, "#FF6161");
         }
+        this.node.getChildByName("Round").color = color
         this.isDeth = false
         this.beDeth = false;
         this.levelLabel = this.node.getChildByName("LevelLabel").getComponent(cc.Label);
