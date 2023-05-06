@@ -301,6 +301,7 @@ export default class RoleBase extends cc.Component {
     public Death() {
         this.isDeth = true;
         this.game.roleManager.DeleteRole(this);
+        this.game.eatingNodePool.PutNode(this.visualNodePool, this.node.getChildByName("Visual").children[0]);
         this.game.eatingNodePool.PutNode(nodePoolEnum.role, this.node);
     }
 
