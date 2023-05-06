@@ -27,12 +27,14 @@ export default class BoyManager {
     public AddBoy(boy: Boy) {
         if (-1 != this.HasBoy(boy)) return;
         this.boys.push(boy);
-        boy.node.getChildByName("Visual").children.forEach((v) => {
-            v.destroy();
-        })
+        // boy.node.getChildByName("Visual").children.forEach((v) => {
+        //     v.destroy();
+        // })
+        boy.PutVisual();
+        boy.visualNodePool = this.role.visualNodePool;
         // boy.node.setParent(this.role.boysNode);
         if (boy.inGame) this.game.boyCount--;
-        let visual = cc.instantiate(this.role.visualPrefab);
+        let visual = this.role.game.eatingNodePool.GetNode(this.role.visualNodePool);
         visual.setParent(boy.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
         let factor = 0.5 * boy.node.getChildByName("Visual").scaleX;

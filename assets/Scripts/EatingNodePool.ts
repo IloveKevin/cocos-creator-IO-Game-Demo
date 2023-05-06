@@ -3,8 +3,18 @@ import EatingGameConfig from "./EatingGameConfig";
 export enum nodePoolEnum {
     role,
     boy,
+    boyVisual,
     playerVisual,
-    enemyVisual,
+    level1Visual,
+    level2Visual,
+    level3Visual,
+    level4Visual,
+    level5Visual,
+    level6Visual,
+    level7Visual,
+    level8Visual,
+    level9Visual,
+    level10Visual,
 }
 export default class EatingNodePool {
     private nodePool: Map<nodePoolEnum, cc.NodePool> = new Map<nodePoolEnum, cc.NodePool>();
@@ -13,8 +23,18 @@ export default class EatingNodePool {
     public Init() {
         this.InitPut(nodePoolEnum.role, EatingGameConfig.nodePoolInitCount.role);
         this.InitPut(nodePoolEnum.boy, EatingGameConfig.nodePoolInitCount.boy);
+        this.InitPut(nodePoolEnum.boyVisual, EatingGameConfig.nodePoolInitCount.boy)
         this.InitPut(nodePoolEnum.playerVisual, EatingGameConfig.nodePoolInitCount.playerVisual);
-        this.InitPut(nodePoolEnum.enemyVisual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level1Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level2Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level3Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level4Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level5Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level6Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level7Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level8Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level9Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
+        this.InitPut(nodePoolEnum.level10Visual, EatingGameConfig.nodePoolInitCount.enemyVisual);
     }
 
     private InitPut(nodePoolName: nodePoolEnum, count: number) {
@@ -22,6 +42,33 @@ export default class EatingNodePool {
             let prefab = this.prefabs.get(nodePoolName);
             let node = cc.instantiate(prefab);
             this.PutNode(nodePoolName, node);
+        }
+    }
+
+    public GetVisualNodePool(level: number): nodePoolEnum {
+        switch (level) {
+            case 1:
+                return nodePoolEnum.level1Visual;
+            case 2:
+                return nodePoolEnum.level2Visual;
+            case 3:
+                return nodePoolEnum.level3Visual;
+            case 4:
+                return nodePoolEnum.level4Visual;
+            case 5:
+                return nodePoolEnum.level5Visual;
+            case 6:
+                return nodePoolEnum.level6Visual;
+            case 7:
+                return nodePoolEnum.level7Visual;
+            case 8:
+                return nodePoolEnum.level8Visual;
+            case 9:
+                return nodePoolEnum.level9Visual;
+            case 10:
+                return nodePoolEnum.level10Visual;
+            default:
+                return nodePoolEnum.boyVisual;
         }
     }
 

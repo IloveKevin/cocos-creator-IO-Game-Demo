@@ -11,7 +11,6 @@ const { ccclass, property } = cc._decorator;
 export default class RoleBase extends cc.Component {
     levelLabel: cc.Label = null;
     protected roleLevel: number = 1;
-    public visualPrefab: cc.Prefab = null;
     public Ai: boolean = true;
     protected boyManager: BoyManager;
     protected moveDir: cc.Vec2 = cc.Vec2.ZERO;
@@ -27,6 +26,7 @@ export default class RoleBase extends cc.Component {
     public beDeth: boolean = false;
     public isDeth: boolean = false;
     public game: EatingGame;
+    public visualNodePool: nodePoolEnum;
 
     public unuse() {
         // console.log("放入节点池");
@@ -36,18 +36,22 @@ export default class RoleBase extends cc.Component {
         // console.log("从节点池拿出");
     }
 
-    public Init(visualPrefab: cc.Prefab, game: EatingGame, level: number = 1, ai: boolean = true) {
+    public Init(game: EatingGame, level: number = 1, ai: boolean = true) {
         this.game = game;
+        this.roleLevel = level;
+        this.visualNodePool = this.game.eatingNodePool.GetVisualNodePool(this.roleLevel);
+        this.Ai = ai;
+        if (!this.Ai) {
+            this.visualNodePool = nodePoolEnum.playerVisual;
+        }
         this.isDeth = false
         this.beDeth = false;
         this.levelLabel = this.node.getChildByName("LevelLabel").getComponent(cc.Label);
         this.moveDir = cc.Vec2.ZERO;
         this.boyManager = new BoyManager(this, this.game);
-        this.roleLevel = level;
-        this.visualPrefab = visualPrefab;
-        this.Ai = ai;
+
         this.boysNode = this.node.getChildByName("Boys");
-        let visual = cc.instantiate(visualPrefab);
+        let visual = this.game.eatingNodePool.GetNode(this.visualNodePool);
         visual.setParent(this.node.getChildByName("Visual"));
         visual.setPosition(0, 0);
         this.node.getComponents(cc.CircleCollider).forEach((value) => {
@@ -57,7 +61,7 @@ export default class RoleBase extends cc.Component {
         let boyCount = 5;
         if (!this.Ai) boyCount = 300;
         let a = Date.now();
-        if (this.Ai)
+        if (this.Ai) {
             for (let i = 0; i < boyCount; i++) {
                 let newBoy = (this.game.GetBoy());
                 newBoy.setParent(this.game.node);
@@ -66,6 +70,7 @@ export default class RoleBase extends cc.Component {
                 boy.Init(this.game);
                 this.boyManager.AddBoy(boy);
             }
+        }
         // console.log("创造所有儿子的时间", Date.now() - a);
     }
 

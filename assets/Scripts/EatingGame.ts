@@ -17,6 +17,8 @@ export default class EatingGame extends cc.Component {
     rolePrefab: cc.Prefab = null;
     @property(cc.Prefab)
     boyPrefab: cc.Prefab = null;
+    @property(cc.Prefab)
+    boyVisualPrefab: cc.Prefab = null;
     @property([cc.Prefab])
     visualPrefabs: cc.Prefab[] = [];
     @property(cc.Node)
@@ -42,7 +44,7 @@ export default class EatingGame extends cc.Component {
     onLoad() {
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
-        // manager.enabledDebugDraw = true;
+        manager.enabledDebugDraw = true;
         cc.director.getPhysicsManager().enabled = true;
     }
 
@@ -67,16 +69,19 @@ export default class EatingGame extends cc.Component {
         newPlayer.setParent(this.node);
         this.player = newPlayer.getComponent(Player);
         this.cameraHolder.player = this.player;
-        this.player.Init(this.visualPrefabs[0], this, 1, false);
+        this.player.Init(this, 1, false);
         this.roleManager.AddRole(this.player);
     }
 
     private InitNodePool() {
         this.eatingNodePool = new EatingNodePool();
         this.eatingNodePool.CreatNodePool(nodePoolEnum.boy, this.boyPrefab, "Boy");
+        this.eatingNodePool.CreatNodePool(nodePoolEnum.boyVisual, this.boyVisualPrefab);
         this.eatingNodePool.CreatNodePool(nodePoolEnum.role, this.rolePrefab, "RoleBase");
         this.eatingNodePool.CreatNodePool(nodePoolEnum.playerVisual, this.visualPrefabs[0]);
-        this.eatingNodePool.CreatNodePool(nodePoolEnum.enemyVisual, this.visualPrefabs[1]);
+        for (let i = 1; i <= 10; i++) {
+            this.eatingNodePool.CreatNodePool(this.eatingNodePool.GetVisualNodePool(i), this.visualPrefabs[i]);
+        }
         this.eatingNodePool.Init();
     }
 
@@ -166,7 +171,7 @@ export default class EatingGame extends cc.Component {
             }
             // pos = cc.v2(0, 0);
             // newRole.setPosition(pos);
-            role.Init(this.visualPrefabs[1], this, level);
+            role.Init(this, level);
             this.roleManager.AddRole(role);
             // console.log("创建role的时间", Date.now() - a);
         }

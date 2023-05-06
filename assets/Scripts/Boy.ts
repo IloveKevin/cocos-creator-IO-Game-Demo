@@ -23,6 +23,7 @@ export default class Boy extends cc.Component {
     public inGame: boolean = false;
     public id: number;
     public game: EatingGame;
+    public visualNodePool: nodePoolEnum;
 
     public unuse() {
         this.node.getChildByName("Visual").children.forEach((value) => {
@@ -32,6 +33,12 @@ export default class Boy extends cc.Component {
 
     Init(game: EatingGame) {
         this.game = game;
+        this.visualNodePool = nodePoolEnum.boyVisual;
+        let boyVisualNode = this.game.eatingNodePool.GetNode(nodePoolEnum.boyVisual);
+        boyVisualNode.setParent(this.node.getChildByName("Visual"));
+        boyVisualNode.setPosition(0, 0);
+        let factor = 0.5 * this.node.getChildByName("Visual").scaleX;
+        this.node.getComponent(cc.CircleCollider).radius = boyVisualNode.height > boyVisualNode.width ? boyVisualNode.height * factor : boyVisualNode.width * factor;
     }
 
     protected onLoad(): void {
@@ -40,11 +47,6 @@ export default class Boy extends cc.Component {
 
     public reuse() {
         this.rb = this.node.getComponent(cc.RigidBody);
-        let boyVisualNode = cc.instantiate(this.boyVisualPrefab);
-        boyVisualNode.setParent(this.node.getChildByName("Visual"));
-        boyVisualNode.setPosition(0, 0);
-        let factor = 0.5 * this.node.getChildByName("Visual").scaleX;
-        this.node.getComponent(cc.CircleCollider).radius = boyVisualNode.height > boyVisualNode.width ? boyVisualNode.height * factor : boyVisualNode.width * factor;
         this.role = null;
         this.moveDir = cc.Vec2.UP;
         this.aiMovePos = cc.Vec2.ZERO;
@@ -59,6 +61,10 @@ export default class Boy extends cc.Component {
     public ChangeTarget(role: RoleBase, targetPos: cc.Vec2) {
         this.role = role;
         this.targetPos = targetPos;
+    }
+
+    public PutVisual() {
+        this.game.eatingNodePool.PutNode(this.visualNodePool, this.node.getChildByName("Visual").children[0]);
     }
 
     public GetRole() {
@@ -76,6 +82,7 @@ export default class Boy extends cc.Component {
 
     public BoyDead() {
         this.role.GetBoyManager().DeleteBoy(this);
+        this.PutVisual();
         this.game.eatingNodePool.PutNode(nodePoolEnum.boy, this.node);
     }
 
