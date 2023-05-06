@@ -1,5 +1,4 @@
 import RoleBase from "./Base/RoleBase";
-import EatingGame from "./EatingGame";
 
 const { ccclass, property } = cc._decorator;
 
